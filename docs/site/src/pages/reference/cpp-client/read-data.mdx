@@ -1,0 +1,71 @@
+---
+layout: "@/layouts/Reference.astro"
+title: "Read Data"
+description: "Use the C++ client to read from a Synnax cluster."
+next: "Write Data"
+nextURL: "/reference/cpp-client/write-data"
+prev: "Ranges"
+prevURL: "/reference/cpp-client/ranges"
+---
+
+import { Divider } from "@synnaxlabs/pluto";
+import { mdxOverrides } from "@/components/mdxOverrides";
+export const components = mdxOverrides;
+
+The C++ client supports several different ways of reading data from a cluster. We can
+read directly from a channel, fetch a range and access its data, or leverage server side
+iterators for processing large queries. If you'd like a conceptual overview of how to
+read data in Synnax, check out the [reads](/reference/concepts/reads) page.
+
+<Divider.Divider direction="x" />
+
+## Reading from a Channel
+
+The simplest way to read data from Synnax is to use the `read` method on the `Channel`
+class:
+
+```cpp
+auto now = telem::Timestamp::now();
+auto start = now - 10 * telem::SECOND;
+auto end = now;
+
+auto [data, err] = channel.read(start, end);
+if (err) {
+    // handle error
+}
+```
+
+The returned data is an instance of the `synnax::Series` class.
+
+## Reading From Multiple Channels
+
+We can also read from multiple channels at once by calling the `read` method on
+the `client`. This method takes a list of channel names/keys and a time range:
+
+```cpp
+auto [data, err] = client.read(start, end, {"ch1", "ch2"});
+```
+
+The returned data is an instance of the `synnax::Frame` class. We can access `Series`
+on the class by using the `[]` operator:
+
+## Reading with Iterators
+
+Single, multiple, and named reads will cover most use cases, but there are situations
+where it's necessary to process more data than can be stored in memory.
+
+Synnax supports server side iterators that allow us to process large queries in
+consistently sized chunks. By default, Synnax uses a chunk size of 100,000. To configure
+a custom chunk size, pass in the `chunk_size` argument to the `open_iterator` method
+with the desired number of samples per iteration.
+
+```cpp
+auto [it, err] = client.telem.open_iterator(start, end, {"ch1", "ch2"}, 100000);
+```
+
+The iterator will return a `synnax::Frame` for each iteration. We can access the
+`Series` on the frame by using the `[]` operator:
+
+```cpp
+auto series = frame["ch1"];
+```

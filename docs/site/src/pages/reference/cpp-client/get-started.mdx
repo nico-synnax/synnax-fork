@@ -1,0 +1,78 @@
+---
+layout: "@/layouts/Reference.astro"
+title: "Get Started"
+description: "Get started with the Synnax C++ client."
+---
+
+import { Divider } from "@synnaxlabs/pluto";
+import { mdxOverrides } from "@/components/mdxOverrides";
+export const components = mdxOverrides;
+
+## Pre-Built Binaries
+
+Pre-built binaries for the C++ client are available on the [Synnax GitHub
+Releases](https://github.com/synnaxlabs/synnax/releases) page. Corresponding
+binaries for each platform are available for each release, and header files are
+available in the `include` directory.
+
+<Divider.Divider direction="x" />
+
+## Building from Source
+
+There are two ways to build the C++ client from source, depending on your build system
+of choice.
+
+### Using CMake
+
+To build the C++ client using CMake, you will need to have the following dependencies
+installed:
+
+- CMake
+- A C++ compiler
+
+Once you have the dependencies installed, you can build the C++ client using the
+following command:
+
+```bash
+cmake -Bbuild -H.
+make -C build
+```
+
+### Using Bazel
+
+To build the C++ client using Bazel, you will need to have the following dependencies
+installed:
+
+- Bazel
+- A C++ compiler
+
+Once you have the dependencies installed, you can include the following in your `MODULE.bazel`
+file:
+
+```bzl
+bazel_dep(name = "synnax_client", version = "0.38.0")
+```
+
+<Divider.Divider direction="x" />
+
+## Authenticating with a Cluster
+
+To connect to a Synnax cluster, we'll instantiate `synnax::Synnax` with our connection
+parameters to the cluster.
+
+```cpp
+#include "client/cpp/synnax.h"
+
+
+auto client = synnax::Synnax(synnax::Config{
+    .host = "localhost",
+    .port = 9090,
+    .username = "synnax",
+    .password = "seldon",
+    .secure = true
+});
+auto err = client.authenticate();
+if (err) {
+    // handle error
+}
+```

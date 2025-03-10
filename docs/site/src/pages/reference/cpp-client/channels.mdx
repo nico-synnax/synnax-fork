@@ -1,0 +1,143 @@
+---
+layout: "@/layouts/Reference.astro"
+title: "Channels"
+description: "Create, retrieve, and delete channels using the Synnax C++ client."
+next: "Ranges"
+nextURL: "/reference/cpp-client/ranges"
+prev: "Get Started"
+prevURL: "/reference/cpp-client/get-started"
+---
+
+import { Divider, Note } from "@synnaxlabs/pluto";
+import { mdxOverrides } from "@/components/mdxOverrides";
+export const components = mdxOverrides;
+
+The C++ client provides interfaces for creating, retrieving, and deleting channels.
+We'll cover the details of each of these operations in this guide.
+
+If you're unfamiliar with what channels are and how they work, check out the [channels
+concepts guide](/reference/concepts/channels).
+
+<Divider.Divider direction="x" />
+
+## Creating Channels
+
+We can create channels using the `channels.create` method on the client. The method can
+be called in three different ways: a set of arguments for creating a channel, a single
+channel that has already been created locally, or a list of channels that have already been
+created locally.
+
+### Creating a Data Channel and its Index
+
+To create a data channel and its index, we can use the `channels.create` method with a
+set of arguments.
+
+```cpp
+synnax::Channel index_ch{
+    .name = "time",
+    // Index channels must have a data type of TIMESTAMP_T
+    // and is_index set to true
+    .data_type = synnax::TIMESTAMP_T,
+    .is_index = true
+};
+
+client.channels.create(index_ch);
+
+synnax::Channel data_ch{
+    .name = "temperature",
+    .data_type = synnax::FLOAT64,
+    .index = index_ch.key // Pass the key of the index channel here.
+};
+client.channels.create(data_ch);
+```
+
+### Creating Multiple Channels
+
+We can create multiple channels by passing a list to the `create` method. This is more
+efficient than creating many channels individually, and provides the atomic guarantee
+that either all or no channels will be created.
+
+Keep in mind that we need to create index channels before we can create the data
+channels that use them.
+
+```cpp
+// Create the index channel BEFORE we create any of the corresponding
+// data channels.
+synnax::Channel index_ch{
+    .name = "time",
+    .data_type = synnax::TIMESTAMP_T,
+    .is_index = true
+};
+client.channels.create(index_ch);
+
+synnax::Channel sensor_one{
+    .name = "sensor_one",
+    .data_type = synnax::FLOAT64_T,
+    .index = index_ch.key // Pass the key of the index channel here.
+};
+synnax::Channel sensor_two{
+    .name = "sensor_two",
+    .data_type = synnax::FLOAT32_T,
+    .index = index_ch.key // Pass the key of the index channel here.
+};
+client.channels.create(std::vector<synnax::Channel>{
+    sensor_one,
+    sensor_two
+});
+```
+
+<Divider.Divider direction="x" />
+
+## Retrieving Channels
+
+We can retrieve channels using the `channels.retrieve` method on the client. This method
+can be called in three different ways: a single channel, a list of channels, or a channel
+by name.
+
+### Retrieving a Single Channel
+
+To retrieve a single channel, pass the channel's name or key to the `retrieve` method:
+
+```cpp
+    auto [ch, err] = client.channels.retrieve("my_channel");
+    if (err) {
+        // handle error
+    }
+    auto [ch2, err2] = client.channels.retrieve(ch.key);
+    if (err2) {
+        // handle error
+    }
+```
+
+The client will return an `xerrors::NOT_FOUND` error if no channels match the query, and
+an `xerrors::MULTIPLE_FOUND` error if more than one channel matches the query. If you'd
+like to accept no or multiple results, provide a list to the `retrieve` method as shown
+in the next section.
+
+<Note.Note variant="info">
+  Retrieving by key is faster than retrieving by name, and we recommend doing so when
+  possible.
+</Note.Note>
+
+### Retrieving Multiple Channels
+
+To retrieve multiple channels, pass a list of names or a list of keys to the
+`retrieve` method:
+
+```cpp
+auto [channels, err] = client.channels.retrieve(
+    std::vector<std::string>{"ch1", "ch2"}
+);
+if (err) {
+    // handle error
+}
+auto [channels2, err2] = client.channels.retrieve(
+    std::vector<synnax::ChannelKey>{ch1.key, ch2.key}
+);
+if (err2) {
+    // handle error
+}
+```
+
+Note that the client will not return an `xerrors::NOT_FOUND` error if a channel is not
+found. Instead, the missing channel will simply be omitted from the list of results.
