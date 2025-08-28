@@ -63,7 +63,7 @@ export class Setpoint
 
   private updateValue(): void {
     const nextValue = this.internal.source.value();
-    if (nextValue === this.state.value) return;
+    if (nextValue === this.state.value || isNaN(nextValue)) return;
     this.setState((p) => ({ ...p, value: nextValue, triggered: false }));
   }
 

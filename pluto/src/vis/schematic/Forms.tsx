@@ -761,7 +761,7 @@ export const ButtonForm = (): ReactElement => {
       default:
         return (
           <CommonStyleForm
-            omit={["align", "maxInlineSize"]}
+            omit={["align", "maxInlineSize", "direction"]}
             hideInnerOrientation
             hideOuterOrientation
           />

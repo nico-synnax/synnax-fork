@@ -420,7 +420,7 @@ type zeroLabelReturn = { label: LabelExtensionProps };
 const zeroLabel = (label: string): zeroLabelReturn => ({
   label: {
     label,
-    level: "p",
+    level: "h4",
     orientation: "top",
     maxInlineSize: 150,
     align: "center",
