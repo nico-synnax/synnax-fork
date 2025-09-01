@@ -14,7 +14,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/synnax/pkg/distribution/cluster"
-
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/search"
 	"github.com/synnaxlabs/x/gorp"
@@ -28,12 +27,9 @@ type Retrieve struct {
 	searchTerm   string
 }
 
-// Search applies a fuzzy search filter to the query. This will be executed before
-// all other filters are applied.
-func (r Retrieve) Search(term string) Retrieve {
-	r.searchTerm = term
-	return r
-}
+// Search applies a fuzzy search filter to the query. This will be executed before all
+// other filters are applied.
+func (r Retrieve) Search(term string) Retrieve { r.searchTerm = term; return r }
 
 // WhereKeys filters racks by their keys.
 func (r Retrieve) WhereKeys(keys ...Key) Retrieve {
@@ -57,8 +53,8 @@ func (r Retrieve) WhereEmbedded(embedded bool, opts ...gorp.FilterOption) Retrie
 	return r
 }
 
-// WhereNodeIsHost filters for racks that are bound to the provided node and are
-// a gateway.
+// WhereNodeIsHost filters for racks that are bound to the provided node and are a
+// gateway.
 func (r Retrieve) WhereNodeIsHost(opts ...gorp.FilterOption) Retrieve {
 	r.gorp = r.gorp.Where(func(rack *Rack) bool {
 		return rack.Key.Node() == r.hostProvider.HostKey()
@@ -68,10 +64,7 @@ func (r Retrieve) WhereNodeIsHost(opts ...gorp.FilterOption) Retrieve {
 
 // Entry binds the provided entry as the result container for the query. If multiple
 // entries are found, the first one will be used.
-func (r Retrieve) Entry(rack *Rack) Retrieve {
-	r.gorp = r.gorp.Entry(rack)
-	return r
-}
+func (r Retrieve) Entry(rack *Rack) Retrieve { r.gorp = r.gorp.Entry(rack); return r }
 
 // Entries binds the provided slice as the result container for the query. If multiple
 // entries are found, they will be appended to the slice.
@@ -81,10 +74,7 @@ func (r Retrieve) Entries(racks *[]Rack) Retrieve {
 }
 
 // Limit sets the maximum number of entries to return.
-func (r Retrieve) Limit(limit int) Retrieve {
-	r.gorp = r.gorp.Limit(limit)
-	return r
-}
+func (r Retrieve) Limit(limit int) Retrieve { r.gorp = r.gorp.Limit(limit); return r }
 
 // Offset sets the starting index of the entries to return.
 func (r Retrieve) Offset(offset int) Retrieve {
@@ -109,14 +99,14 @@ func (r Retrieve) execSearch(ctx context.Context) (Retrieve, error) {
 		Term: r.searchTerm,
 	})
 	if err != nil {
-		return r, err
+		return Retrieve{}, err
 	}
-	keys, err := KeysFromOntologyIds(ids)
+	keys, err := KeysFromOntologyIDs(ids)
 	if err != nil {
-		return r, err
+		return Retrieve{}, err
 	}
 	r = r.WhereKeys(keys...)
-	return r, err
+	return r, nil
 }
 
 // Exec executes the query against the provided transaction.

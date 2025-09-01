@@ -11,6 +11,7 @@ package task
 
 import (
 	"context"
+
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/search"
@@ -25,14 +26,11 @@ type Retrieve struct {
 	searchTerm string
 }
 
-func (r Retrieve) Search(term string) Retrieve {
-	r.searchTerm = term
-	return r
-}
+func (r Retrieve) Search(term string) Retrieve { r.searchTerm = term; return r }
 
 func (r Retrieve) WhereNames(names ...string) Retrieve {
-	r.gorp = r.gorp.Where(func(m *Task) bool {
-		ok := lo.Contains(names, m.Name)
+	r.gorp = r.gorp.Where(func(t *Task) bool {
+		ok := lo.Contains(names, t.Name)
 		return ok
 	}, gorp.Required())
 	return r
@@ -44,26 +42,23 @@ func (r Retrieve) WhereKeys(keys ...Key) Retrieve {
 }
 
 func (r Retrieve) WhereRacks(key ...rack.Key) Retrieve {
-	r.gorp = r.gorp.Where(func(m *Task) bool {
-		return lo.Contains(key, m.Rack())
+	r.gorp = r.gorp.Where(func(t *Task) bool {
+		return lo.Contains(key, t.Rack())
 	}, gorp.Required())
 	return r
 }
 
 func (r Retrieve) WhereTypes(types ...string) Retrieve {
-	r.gorp = r.gorp.Where(func(m *Task) bool {
-		return lo.Contains(types, m.Type)
+	r.gorp = r.gorp.Where(func(t *Task) bool {
+		return lo.Contains(types, t.Type)
 	}, gorp.Required())
 	return r
 }
 
-func (r Retrieve) Entry(rack *Task) Retrieve {
-	r.gorp = r.gorp.Entry(rack)
-	return r
-}
+func (r Retrieve) Entry(task *Task) Retrieve { r.gorp = r.gorp.Entry(task); return r }
 
-func (r Retrieve) Entries(racks *[]Task) Retrieve {
-	r.gorp = r.gorp.Entries(racks)
+func (r Retrieve) Entries(tasks *[]Task) Retrieve {
+	r.gorp = r.gorp.Entries(tasks)
 	return r
 }
 
@@ -73,7 +68,7 @@ func (r Retrieve) Limit(limit int) Retrieve {
 }
 
 func (r Retrieve) WhereInternal(internal bool, opts ...gorp.FilterOption) Retrieve {
-	r.gorp = r.gorp.Where(func(m *Task) bool { return m.Internal == internal }, opts...)
+	r.gorp = r.gorp.Where(func(t *Task) bool { return t.Internal == internal }, opts...)
 	return r
 }
 
@@ -91,19 +86,20 @@ func (r Retrieve) execSearch(ctx context.Context) (Retrieve, error) {
 		Term: r.searchTerm,
 	})
 	if err != nil {
-		return r, err
+		return Retrieve{}, err
 	}
-	keys, err := KeysFromOntologyIds(ids)
+	keys, err := KeysFromOntologyIDs(ids)
 	if err != nil {
-		return r, err
+		return Retrieve{}, err
 	}
 	r = r.WhereKeys(keys...)
 	return r, nil
 }
 
-func (r Retrieve) Exec(ctx context.Context, tx gorp.Tx) (err error) {
+func (r Retrieve) Exec(ctx context.Context, tx gorp.Tx) error {
+	var err error
 	if r, err = r.execSearch(ctx); err != nil {
-		return
+		return err
 	}
 	return r.gorp.Exec(ctx, gorp.OverrideTx(r.baseTX, tx))
 }

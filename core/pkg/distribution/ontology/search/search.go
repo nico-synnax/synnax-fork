@@ -19,7 +19,7 @@ import (
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/alamos"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/core"
+	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/resource"
 	"github.com/synnaxlabs/x/change"
 	"github.com/synnaxlabs/x/config"
 	"github.com/synnaxlabs/x/zyn"
@@ -32,9 +32,7 @@ type Index struct {
 	idx     bleve.Index
 }
 
-type Config struct {
-	alamos.Instrumentation
-}
+type Config struct{ alamos.Instrumentation }
 
 var _ config.Config[Config] = Config{}
 
@@ -42,18 +40,20 @@ func (c Config) Validate() error { return nil }
 
 func (c Config) Override(other Config) Config { return c }
 
-func New(configs ...Config) (*Index, error) {
-	cfg, err := config.New(Config{}, configs...)
+func New(cfgs ...Config) (*Index, error) {
+	cfg, err := config.New(Config{}, cfgs...)
 	if err != nil {
 		return nil, err
 	}
 	s := &Index{Config: cfg}
 	s.mapping = bleve.NewIndexMapping()
 	if err = registerSeparatorAnalyzer(s.mapping); err != nil {
-		return s, err
+		return nil, err
 	}
-	s.idx, err = bleve.NewMemOnly(s.mapping)
-	return s, err
+	if s.idx, err = bleve.NewMemOnly(s.mapping); err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 func (s *Index) OpenTx() Tx { return Tx{idx: s.idx, batch: s.idx.NewBatch()} }
@@ -67,12 +67,10 @@ func (s *Index) WithTx(f func(Tx) error) error {
 	return t.Commit()
 }
 
-func (s *Index) Index(resources []core.Resource) error {
+func (s *Index) Index(resources []resource.Resource) error {
 	t := s.OpenTx()
 	defer t.Close()
 	for _, r := range resources {
-		// this is where we index
-		// probably where s.config is set
 		if err := t.Index(r); err != nil {
 			return err
 		}
@@ -85,7 +83,7 @@ type Tx struct {
 	batch *bleve.Batch
 }
 
-func (t *Tx) Apply(changes ...core.Change) error {
+func (t *Tx) Apply(changes ...resource.Change) error {
 	for _, ch := range changes {
 		if ch.Variant == change.Set {
 			if err := t.batch.Index(ch.Key.String(), ch.Value); err != nil {
@@ -98,21 +96,19 @@ func (t *Tx) Apply(changes ...core.Change) error {
 	return nil
 }
 
-func (t *Tx) Commit() error {
-	return t.idx.Batch(t.batch)
-}
+func (t *Tx) Commit() error { return t.idx.Batch(t.batch) }
 
-func (t *Tx) Index(resource core.Resource) error {
+func (t *Tx) Index(resource resource.Resource) error {
 	return t.batch.Index(resource.ID.String(), resource)
 }
 
-func (t *Tx) Delete(id core.ID) { t.batch.Delete(id.String()) }
+func (t *Tx) Delete(id resource.ID) { t.batch.Delete(id.String()) }
 
 func (t *Tx) Close() { t.idx = nil; t.batch = nil }
 
 func (s *Index) Register(
 	ctx context.Context,
-	t core.Type,
+	t resource.Type,
 	sch zyn.Schema,
 ) {
 	s.L.Debug("registering schema", zap.Stringer("type", t))
@@ -132,7 +128,7 @@ func (s *Index) Register(
 
 type Request struct {
 	Term string
-	Type core.Type
+	Type resource.Type
 }
 
 func assembleWordQuery(word string, _ int) query.Query {
@@ -146,13 +142,15 @@ func assembleWordQuery(word string, _ int) query.Query {
 	// Specifies the levenshtein distance for the fuzzy query
 	// https://en.wikipedia.org/wiki/Levenshtein_distance
 	exactQ.SetFuzziness(0)
-	// Makes the exact result the most important. Value chosen
-	// arbitrarily.
+	// Makes the exact result the most important. Value chosen arbitrarily.
 	exactQ.SetBoost(100)
 	return bleve.NewDisjunctionQuery(exactQ, prefixQ, regexQ, fuzzyQ)
 }
 
-func (s *Index) execQuery(ctx context.Context, q query.Query) (*bleve.SearchResult, error) {
+func (s *Index) execQuery(
+	ctx context.Context,
+	q query.Query,
+) (*bleve.SearchResult, error) {
 	search_ := bleve.NewSearchRequest(q)
 	search_.Fields = []string{"name"}
 	// Limit search results to 100
@@ -161,9 +159,12 @@ func (s *Index) execQuery(ctx context.Context, q query.Query) (*bleve.SearchResu
 	return s.idx.SearchInContext(ctx, search_)
 }
 
-func (s *Index) Search(ctx context.Context, req Request) ([]core.ID, error) {
+func (s *Index) Search(ctx context.Context, req Request) ([]resource.ID, error) {
 	ctx, span := s.T.Prod(ctx, "search")
-	words := strings.FieldsFunc(req.Term, func(r rune) bool { return r == ' ' || r == '_' || r == '-' })
+	words := strings.FieldsFunc(
+		req.Term,
+		func(r rune) bool { return r == ' ' || r == '_' || r == '-' },
+	)
 	querySet := lo.Map(words, assembleWordQuery)
 	cj := bleve.NewConjunctionQuery(querySet...)
 	res, err := s.execQuery(ctx, cj)
@@ -178,14 +179,21 @@ func (s *Index) Search(ctx context.Context, req Request) ([]core.ID, error) {
 			return nil, span.EndWith(err)
 		}
 	}
-	ids, err := core.ParseIDs(lo.Map(
+	ids, err := resource.ParseIDs(lo.Map(
 		res.Hits,
 		func(hit *search.DocumentMatch, _ int) string { return hit.ID },
 	))
+	if err != nil {
+		return nil, span.EndWith(err)
+	}
 	if len(req.Type) == 0 {
 		return ids, span.EndWith(err)
 	}
-	return lo.Filter(ids, func(id core.ID, _ int) bool { return id.Type == req.Type }), span.EndWith(err)
+	return lo.Filter(
+		ids,
+		func(id resource.ID, _ int) bool {
+			return id.Type == req.Type
+		}), span.EndWith(err)
 }
 
 var fieldMappings = map[zyn.DataType]func() *mapping.FieldMapping{

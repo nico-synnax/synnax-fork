@@ -15,8 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/core"
-	changex "github.com/synnaxlabs/x/change"
+	xchange "github.com/synnaxlabs/x/change"
 	"github.com/synnaxlabs/x/gorp"
 	"github.com/synnaxlabs/x/iter"
 	"github.com/synnaxlabs/x/observe"
@@ -37,18 +36,6 @@ func OntologyIDs(keys []uuid.UUID) []ontology.ID {
 	})
 }
 
-// KeysFromOntologyIDs extracts the keys of the schematics from the ontology IDs.
-func KeysFromOntologyIDs(ids []ontology.ID) (keys []uuid.UUID, err error) {
-	keys = make([]uuid.UUID, len(ids))
-	for i, id := range ids {
-		keys[i], err = uuid.Parse(id.Key)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return keys, nil
-}
-
 // OntologyIDsFromSchematics returns the ontology IDs of the schematics.
 func OntologyIDsFromSchematics(schematics []Schematic) []ontology.ID {
 	return lo.Map(schematics, func(s Schematic, _ int) ontology.ID {
@@ -63,10 +50,10 @@ var schema = zyn.Object(map[string]zyn.Schema{
 })
 
 func newResource(s Schematic) ontology.Resource {
-	return core.NewResource(schema, OntologyID(s.Key), s.Name, s)
+	return ontology.NewResource(schema, OntologyID(s.Key), s.Name, s)
 }
 
-type change = changex.Change[uuid.UUID, Schematic]
+type change = xchange.Change[uuid.UUID, Schematic]
 
 func (s *Service) Type() ontology.Type { return ontologyType }
 
@@ -74,11 +61,17 @@ func (s *Service) Type() ontology.Type { return ontologyType }
 func (s *Service) Schema() zyn.Schema { return schema }
 
 // RetrieveResource implements ontology.Service.
-func (s *Service) RetrieveResource(ctx context.Context, key string, tx gorp.Tx) (ontology.Resource, error) {
+func (s *Service) RetrieveResource(
+	ctx context.Context,
+	key string,
+	tx gorp.Tx,
+) (ontology.Resource, error) {
 	k := uuid.MustParse(key)
 	var schematic Schematic
-	err := s.NewRetrieve().WhereKeys(k).Entry(&schematic).Exec(ctx, tx)
-	return newResource(schematic), err
+	if err := s.NewRetrieve().WhereKeys(k).Entry(&schematic).Exec(ctx, tx); err != nil {
+		return ontology.Resource{}, err
+	}
+	return newResource(schematic), nil
 }
 
 func translateChange(c change) ontology.Change {
@@ -90,9 +83,20 @@ func translateChange(c change) ontology.Change {
 }
 
 // OnChange implements ontology.Service.
-func (s *Service) OnChange(f func(ctx context.Context, nexter iter.Nexter[ontology.Change])) observe.Disconnect {
-	handleChange := func(ctx context.Context, reader gorp.TxReader[uuid.UUID, Schematic]) {
-		f(ctx, iter.NexterTranslator[change, ontology.Change]{Wrap: reader, Translate: translateChange})
+func (s *Service) OnChange(
+	f func(context.Context, iter.Nexter[ontology.Change]),
+) observe.Disconnect {
+	handleChange := func(
+		ctx context.Context,
+		reader gorp.TxReader[uuid.UUID, Schematic],
+	) {
+		f(
+			ctx,
+			iter.NexterTranslator[change, ontology.Change]{
+				Wrap:      reader,
+				Translate: translateChange,
+			},
+		)
 	}
 	return gorp.Observe[uuid.UUID, Schematic](s.DB).OnChange(handleChange)
 }
@@ -100,8 +104,11 @@ func (s *Service) OnChange(f func(ctx context.Context, nexter iter.Nexter[ontolo
 // OpenNexter implements ontology.Service.
 func (s *Service) OpenNexter() (iter.NexterCloser[ontology.Resource], error) {
 	n, err := gorp.WrapReader[uuid.UUID, Schematic](s.DB).OpenNexter()
+	if err != nil {
+		return nil, err
+	}
 	return iter.NexterCloserTranslator[Schematic, ontology.Resource]{
 		Wrap:      n,
 		Translate: newResource,
-	}, err
+	}, nil
 }

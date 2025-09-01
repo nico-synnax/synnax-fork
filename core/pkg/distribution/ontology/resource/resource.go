@@ -7,7 +7,7 @@
 // License, use of this software will be governed by the Apache License, Version 2.0,
 // included in the file licenses/APL.txt.
 
-package core
+package resource
 
 import (
 	"strings"
@@ -21,7 +21,7 @@ import (
 )
 
 // Type is the type of a specific ontology Resource. This type should be unique for each
-// [Schema] in the cluster. in the cluster. in the cluster. in the cluster.
+// service in the cluster.
 type Type string
 
 // ZeroType is the zero type and should be assigned to any resource.
@@ -37,16 +37,15 @@ func (t Type) String() string { return string(t) }
 //	    Variant: "user",
 //	}
 //
-// The key has two elements for several reasons. First, by storing the Type we know which
-// Service to query for additional info on the Resource. Second, while a [ID.Key] may be
-// unique for a particular resource (e.g. channel), it might not be unique across ALL
-// resources. We need something universally unique across the entire delta cluster.
+// The key has two elements for several reasons. First, by storing the Type we know
+// which Service to query for additional info on the Resource. Second, while a [ID.Key]
+// may be unique for a particular resource (e.g. channel), it might not be unique across
+// ALL resources. We need something universally unique across the entire Synnax cluster.
 type ID struct {
 	// Key is a string that uniquely identifies a Resource within its Type.
 	Key string `json:"key" msgpack:"key"`
-	// Type defines the type of Resource the Key refers to :). For example,
-	// a channel is a Resource of type "channel". Key user is a Resource of type
-	// "user".
+	// Type defines the type of Resource the Key refers to. For example, a channel is a
+	// Resource of type "channel".
 	Type Type `json:"type" msgpack:"type"`
 }
 
@@ -74,43 +73,42 @@ func (id ID) IsType() bool { return id.Type != "" && id.Key == "" }
 func ParseID(s string) (ID, error) {
 	split := strings.Split(s, ":")
 	if len(split) != 2 {
-		return ID{}, errors.Wrapf(validate.Error, "[ontology] - failed to parse id: %s", s)
+		return ID{},
+			errors.Wrapf(validate.Error, "[ontology] - failed to parse id: %s", s)
 	}
 	return ID{Type: Type(split[0]), Key: split[1]}, nil
 }
 
 // ParseIDs parses the given strings into keys.
 func ParseIDs(s []string) ([]ID, error) {
-	ids := make([]ID, 0, len(s))
-	for _, id := range s {
-		parsed, err := ParseID(id)
+	ids := make([]ID, len(s))
+	var err error
+	for i, id := range s {
+		ids[i], err = ParseID(id)
 		if err != nil {
 			return nil, err
 		}
-		ids = append(ids, parsed)
 	}
 	return ids, nil
 }
 
-// Resource represents an instance matching a [Schema] (think class and object in OOP).
+// Resource represents an instance matching a particular schema.
 type Resource struct {
 	ID ID `json:"id" msgpack:"id"`
 	// Name is a human-readable name for the entity.
 	Name string `json:"name" msgpack:"name"`
-	// Data is the data for the entity. Data must match [Schema.Fields].
+	// Data is the data for the entity. Data must be parseable by the schema.
 	Data any `json:"data" msgpack:"data"`
 	// schema is the schema that this entity matches.
 	schema zyn.Schema
 }
 
-func (r Resource) Parse(dest any) error {
-	return r.schema.Parse(r.Data, dest)
-}
+func (r Resource) Parse(dest any) error { return r.schema.Parse(r.Data, dest) }
 
 type Change = change.Change[ID, Resource]
 
-// BleveType returns the type of the entity for use search indexing,
-// implementing the bleve.bleveClassifier interface.
+// BleveType returns the type of the entity for use search indexing, implementing the
+// bleve.bleveClassifier interface.
 func (r Resource) BleveType() string { return string(r.ID.Type) }
 
 var _ gorp.Entry[ID] = Resource{}
@@ -121,10 +119,9 @@ func (r Resource) GorpKey() ID { return r.ID }
 // SetOptions implements gorp.Entry.
 func (r Resource) SetOptions() []any { return nil }
 
-// NewResource creates a new entity with the given schema and name and an empty set of
-// field data. NewResource panics if the provided data value does not fit the ontology
-// schema.
-func NewResource(schema zyn.Schema, id ID, name string, data any) Resource {
+// New creates a new entity with the given schema and name and an empty set of field
+// data. New panics if the provided data value does not fit the ontology schema.
+func New(schema zyn.Schema, id ID, name string, data any) Resource {
 	return Resource{
 		schema: schema,
 		ID:     id,

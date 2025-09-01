@@ -12,7 +12,6 @@ package ontology
 import (
 	"context"
 
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/core"
 	"github.com/synnaxlabs/x/errors"
 	"github.com/synnaxlabs/x/gorp"
 	"github.com/synnaxlabs/x/iter"
@@ -37,18 +36,23 @@ type builtinService struct {
 
 var _ Service = (*builtinService)(nil)
 
-func (b *builtinService) Type() core.Type { return BuiltInType }
+func (b *builtinService) Type() Type { return BuiltInType }
 
 // Schema implements Service.
 func (b *builtinService) Schema() zyn.Schema { return zyn.Object(nil) }
 
 // RetrieveResource implements Service.
-func (b *builtinService) RetrieveResource(_ context.Context, key string, _ gorp.Tx) (Resource, error) {
+func (b *builtinService) RetrieveResource(
+	_ context.Context,
+	key string,
+	_ gorp.Tx,
+) (Resource, error) {
 	switch key {
 	case "root":
 		return rootResource, nil
 	default:
-		return Resource{}, errors.Wrapf(query.NotFound, "builtin resource %q not found", key)
+		return Resource{},
+			errors.Wrapf(query.NotFound, "builtin resource %q not found", key)
 	}
 }
 

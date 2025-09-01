@@ -19,8 +19,8 @@ import (
 	"github.com/synnaxlabs/synnax/pkg/distribution/framer"
 	"github.com/synnaxlabs/synnax/pkg/distribution/mock"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/core"
-	ontologycdc "github.com/synnaxlabs/synnax/pkg/distribution/ontology/signals"
+	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/resource"
+	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/signals"
 	"github.com/synnaxlabs/x/change"
 	"github.com/synnaxlabs/x/confluence"
 	"github.com/synnaxlabs/x/gorp"
@@ -58,7 +58,7 @@ func (s *changeService) RetrieveResource(
 	key string,
 	_ gorp.Tx,
 ) (ontology.Resource, error) {
-	return core.NewResource(
+	return ontology.NewResource(
 		s.Schema(),
 		newChangeID(key),
 		"",
@@ -84,15 +84,23 @@ var _ = Describe("Signals", Ordered, func() {
 	})
 	Describe("DecodeIDs", func() {
 		It("Should decode a series of IDs", func() {
-			encoded := ontologycdc.EncodeIDs([]ontology.ID{newChangeID("one"), newChangeID("two")})
-			decoded := MustSucceed(ontologycdc.DecodeIDs(encoded))
-			Expect(decoded).To(Equal([]ontology.ID{newChangeID("one"), newChangeID("two")}))
+			encoded := signals.EncodeIDs(
+				[]ontology.ID{newChangeID("one"), newChangeID("two")},
+			)
+			Expect(signals.DecodeIDs(encoded)).
+				To(Equal([]ontology.ID{newChangeID("one"), newChangeID("two")}))
 		})
 	})
 	Describe("Resource Changes", func() {
 		It("Should correctly propagate resource changes to the ontology", func() {
 			var resCh channel.Channel
-			Expect(dist.Channel.NewRetrieve().WhereNames("sy_ontology_resource_set").Entry(&resCh).Exec(ctx, nil)).To(Succeed())
+			Expect(dist.
+				Channel.
+				NewRetrieve().
+				WhereNames("sy_ontology_resource_set").
+				Entry(&resCh).
+				Exec(ctx, nil),
+			).To(Succeed())
 			streamer := MustSucceed(dist.Framer.NewStreamer(ctx, framer.StreamerConfig{
 				Keys: channel.Keys{resCh.Key()},
 			}))
@@ -107,7 +115,7 @@ var _ = Describe("Signals", Ordered, func() {
 					{
 						Variant: change.Set,
 						Key:     newChangeID(key),
-						Value: core.NewResource(
+						Value: resource.New(
 							svc.Schema(),
 							newChangeID(key),
 							"empty",
@@ -118,7 +126,7 @@ var _ = Describe("Signals", Ordered, func() {
 			})
 			var res framer.StreamerResponse
 			Eventually(responses.Outlet()).Should(Receive(&res))
-			ids := MustSucceed(ontologycdc.DecodeIDs(res.Frame.SeriesAt(0).Data))
+			ids := MustSucceed(signals.DecodeIDs(res.Frame.SeriesAt(0).Data))
 			// There's a condition here where we might receive the channel creation
 			// signal, so we just do a length assertion.
 			Expect(len(ids)).To(BeNumerically(">", 0))
@@ -130,7 +138,13 @@ var _ = Describe("Signals", Ordered, func() {
 		})
 		It("Should correctly propagate resource deletes to the ontology", func() {
 			var resCh channel.Channel
-			Expect(dist.Channel.NewRetrieve().WhereNames("sy_ontology_resource_delete").Entry(&resCh).Exec(ctx, nil)).To(Succeed())
+			Expect(dist.
+				Channel.
+				NewRetrieve().
+				WhereNames("sy_ontology_resource_delete").
+				Entry(&resCh).
+				Exec(ctx, nil),
+			).To(Succeed())
 			streamer := MustSucceed(dist.Framer.NewStreamer(ctx, framer.StreamerConfig{
 				Keys: channel.Keys{resCh.Key()},
 			}))
@@ -142,15 +156,12 @@ var _ = Describe("Signals", Ordered, func() {
 			key := "hello"
 			svc.NotifyGenerator(ctx, func() iter.Nexter[ontology.Change] {
 				return iter.All([]ontology.Change{
-					{
-						Variant: change.Delete,
-						Key:     newChangeID(key),
-					},
+					{Variant: change.Delete, Key: newChangeID(key)},
 				})
 			})
 			var res framer.StreamerResponse
 			Eventually(responses.Outlet()).Should(Receive(&res))
-			ids := MustSucceed(ontologycdc.DecodeIDs(res.Frame.SeriesAt(0).Data))
+			ids := MustSucceed(signals.DecodeIDs(res.Frame.SeriesAt(0).Data))
 			// There's a condition here where we might receive the channel creation
 			// signal, so we just do a length assertion.
 			Expect(len(ids)).To(BeNumerically(">", 0))
@@ -163,7 +174,13 @@ var _ = Describe("Signals", Ordered, func() {
 	})
 	It("Should correctly propagate relationship set to the ontology", func() {
 		var resCh channel.Channel
-		Expect(dist.Channel.NewRetrieve().WhereNames("sy_ontology_relationship_set").Entry(&resCh).Exec(ctx, nil)).To(Succeed())
+		Expect(dist.
+			Channel.
+			NewRetrieve().
+			WhereNames("sy_ontology_relationship_set").
+			Entry(&resCh).
+			Exec(ctx, nil),
+		).To(Succeed())
 		streamer := MustSucceed(dist.Framer.NewStreamer(ctx, framer.StreamerConfig{
 			Keys: channel.Keys{resCh.Key()},
 		}))
@@ -176,16 +193,17 @@ var _ = Describe("Signals", Ordered, func() {
 			GinkgoRecover()
 			Expect(closeStreamer.Close()).To(Succeed())
 		}()
-
 		w := dist.Ontology.NewWriter(nil)
 		firstResource := newChangeID("abc")
 		secondResource := newChangeID("def")
 		Expect(w.DefineResource(ctx, firstResource)).To(Succeed())
 		Expect(w.DefineResource(ctx, secondResource)).To(Succeed())
-		Expect(w.DefineRelationship(ctx, firstResource, ontology.ParentOf, secondResource)).To(Succeed())
+		Expect(
+			w.DefineRelationship(ctx, firstResource, ontology.ParentOf, secondResource),
+		).To(Succeed())
 		var res framer.StreamerResponse
 		Eventually(responses.Outlet(), 10*time.Second).Should(Receive(&res))
-		relationships := MustSucceed(ontologycdc.DecodeRelationships(res.Frame.SeriesAt(0).Data))
+		relationships := MustSucceed(signals.DecodeRelationships(res.Frame.SeriesAt(0).Data))
 		// There's a condition here where we might receive the channel creation
 		// signal, so we just do a length assertion.
 		Expect(len(relationships)).To(BeNumerically(">", 0))
@@ -198,7 +216,13 @@ var _ = Describe("Signals", Ordered, func() {
 	It("Should correctly propagate a relationship delete to the ontology", func() {
 		var resCh channel.Channel
 		By("Correctly creating the deletion channel.")
-		Expect(dist.Channel.NewRetrieve().WhereNames("sy_ontology_relationship_delete").Entry(&resCh).Exec(ctx, nil)).To(Succeed())
+		Expect(dist.
+			Channel.
+			NewRetrieve().
+			WhereNames("sy_ontology_relationship_delete").
+			Entry(&resCh).
+			Exec(ctx, nil),
+		).To(Succeed())
 		By("Opening a streamer on the deletion channel")
 		streamer := MustSucceed(dist.Framer.NewStreamer(ctx, framer.StreamerConfig{
 			Keys: channel.Keys{resCh.Key()},
@@ -212,22 +236,27 @@ var _ = Describe("Signals", Ordered, func() {
 			GinkgoRecover()
 			Expect(closeStreamer.Close()).To(Succeed())
 		}()
-
 		w := dist.Ontology.NewWriter(nil)
 		firstResource := newChangeID("abc")
 		secondResource := newChangeID("def")
 		Expect(w.DefineResource(ctx, firstResource)).To(Succeed())
 		Expect(w.DefineResource(ctx, secondResource)).To(Succeed())
 		By("Creating the relationship")
-		Expect(w.DefineRelationship(ctx, firstResource, ontology.ParentOf, secondResource)).To(Succeed())
+		Expect(
+			w.DefineRelationship(ctx, firstResource, ontology.ParentOf, secondResource),
+		).To(Succeed())
 		By("Deleting the relationship")
-		Expect(w.DeleteRelationship(ctx, firstResource, ontology.ParentOf, secondResource)).To(Succeed())
+		Expect(
+			w.DeleteRelationship(ctx, firstResource, ontology.ParentOf, secondResource),
+		).To(Succeed())
 		var res framer.StreamerResponse
 		Eventually(responses.Outlet()).Should(Receive(&res))
 		By("Decoding the relationships")
-		relationships := MustSucceed(ontologycdc.DecodeRelationships(res.Frame.SeriesAt(0).Data))
-		// There's a condition here where we might receive the channel creation
-		// signal, so we just do a length assertion.
+		relationships := MustSucceed(
+			signals.DecodeRelationships(res.Frame.SeriesAt(0).Data),
+		)
+		// There's a condition here where we might receive the channel creation signal,
+		// so we just do a length assertion.
 		Expect(len(relationships)).To(BeNumerically(">", 0))
 		Expect(len(relationships[0].Type)).To(BeNumerically(">", 0))
 		Expect(len(relationships[0].From.Key)).To(BeNumerically(">", 0))

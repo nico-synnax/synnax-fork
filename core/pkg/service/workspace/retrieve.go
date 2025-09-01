@@ -11,6 +11,7 @@ package workspace
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/search"
@@ -24,37 +25,26 @@ type Retrieve struct {
 	searchTerm string
 }
 
-func (r Retrieve) Search(term string) Retrieve {
-	r.searchTerm = term
-	return r
-}
+func (r Retrieve) Search(term string) Retrieve { r.searchTerm = term; return r }
 
 func (r Retrieve) WhereKeys(keys ...uuid.UUID) Retrieve {
 	r.gorp = r.gorp.WhereKeys(keys...)
 	return r
 }
 
-func (r Retrieve) Entry(ws *Workspace) Retrieve {
-	r.gorp = r.gorp.Entry(ws)
-	return r
-}
+func (r Retrieve) Entry(ws *Workspace) Retrieve { r.gorp = r.gorp.Entry(ws); return r }
 
-func (r Retrieve) Entries(wss *[]Workspace) Retrieve {
-	r.gorp = r.gorp.Entries(wss)
+func (r Retrieve) Entries(workspaces *[]Workspace) Retrieve {
+	r.gorp = r.gorp.Entries(workspaces)
 	return r
 }
 
 func (r Retrieve) WhereAuthor(author uuid.UUID) Retrieve {
-	r.gorp = r.gorp.Where(func(ws *Workspace) bool {
-		return ws.Author == author
-	})
+	r.gorp = r.gorp.Where(func(ws *Workspace) bool { return ws.Author == author })
 	return r
 }
 
-func (r Retrieve) Limit(limit int) Retrieve {
-	r.gorp = r.gorp.Limit(limit)
-	return r
-}
+func (r Retrieve) Limit(limit int) Retrieve { r.gorp = r.gorp.Limit(limit); return r }
 
 func (r Retrieve) Offset(offset int) Retrieve {
 	r.gorp = r.gorp.Offset(offset)
@@ -70,7 +60,7 @@ func (r Retrieve) Exec(ctx context.Context, tx gorp.Tx) error {
 		if err != nil {
 			return err
 		}
-		keys, err := KeysFromOntologyIds(ids)
+		keys, err := KeysFromOntologyIDs(ids)
 		if err != nil {
 			return err
 		}

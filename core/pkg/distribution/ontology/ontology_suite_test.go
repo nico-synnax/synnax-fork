@@ -17,7 +17,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/core"
+	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/resource"
 	"github.com/synnaxlabs/x/gorp"
 	"github.com/synnaxlabs/x/iter"
 	"github.com/synnaxlabs/x/kv/memkv"
@@ -39,24 +39,24 @@ var _ ontology.Service = (*sampleService)(nil)
 
 const sampleType ontology.Type = "sample"
 
-type Sample struct {
-	Key string
-}
+type Sample struct{ Key string }
 
 func newSampleType(key string) ontology.ID {
 	return ontology.ID{Key: key, Type: sampleType}
 }
 
-var schema = zyn.Object(map[string]zyn.Schema{
-	"key": zyn.String(),
-})
+var schema = zyn.Object(map[string]zyn.Schema{"key": zyn.String()})
 
 func (s *sampleService) Type() ontology.Type { return sampleType }
 
 func (s *sampleService) Schema() zyn.Schema { return schema }
 
-func (s *sampleService) RetrieveResource(_ context.Context, key string, _ gorp.Tx) (ontology.Resource, error) {
-	return core.NewResource(s.Schema(), newSampleType(key), "empty", Sample{Key: key}), nil
+func (s *sampleService) RetrieveResource(
+	_ context.Context,
+	key string,
+	_ gorp.Tx,
+) (ontology.Resource, error) {
+	return resource.New(s.Schema(), newSampleType(key), "empty", Sample{Key: key}), nil
 }
 
 func (s *sampleService) OpenNexter() (iter.NexterCloser[ontology.Resource], error) {

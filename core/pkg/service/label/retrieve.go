@@ -27,7 +27,8 @@ type Retrieve struct {
 	searchTerm string
 }
 
-// Search executes a fuzzy search for labels whose Name attribute matches the provided term.
+// Search executes a fuzzy search for labels whose Name attribute matches the provided
+// term.
 func (r Retrieve) Search(term string) Retrieve { r.searchTerm = term; return r }
 
 // Limit limits the number of results that Retrieve will return.
@@ -44,7 +45,10 @@ func (r Retrieve) Entry(label *Label) Retrieve { r.gorp.Entry(label); return r }
 func (r Retrieve) Entries(labels *[]Label) Retrieve { r.gorp.Entries(labels); return r }
 
 // WhereKeys filters for labels whose Name attribute matches the provided key.
-func (r Retrieve) WhereKeys(keys ...uuid.UUID) Retrieve { r.gorp.WhereKeys(keys...); return r }
+func (r Retrieve) WhereKeys(keys ...uuid.UUID) Retrieve {
+	r.gorp.WhereKeys(keys...)
+	return r
+}
 
 // WhereNames filters for labels whose Name attribute matches the provided name.
 func (r Retrieve) WhereNames(names ...string) Retrieve {
@@ -54,8 +58,8 @@ func (r Retrieve) WhereNames(names ...string) Retrieve {
 
 // Exec executes the Retrieve query. If a tx is provided, Exec will use it to execute
 // the query. Otherwise, it will execute against the underlying gorp.DB. It's important
-// to note that fuzzy search will not be aware of any writes/deletes executed on the
-// tx, and will only search the underlying database.
+// to note that fuzzy search will not be aware of any writes/deletes executed on the tx,
+// and will only search the underlying database.
 func (r Retrieve) Exec(ctx context.Context, tx gorp.Tx) error {
 	tx = gorp.OverrideTx(r.baseTx, tx)
 	if r.searchTerm != "" {
@@ -66,7 +70,7 @@ func (r Retrieve) Exec(ctx context.Context, tx gorp.Tx) error {
 		if err != nil {
 			return err
 		}
-		keys, err := KeysFromOntologyIds(ids)
+		keys, err := KeysFromOntologyIDs(ids)
 		if err != nil {
 			return err
 		}
@@ -92,7 +96,7 @@ func (s *Service) RetrieveFor(
 		Exec(ctx, tx); err != nil {
 		return nil, err
 	}
-	keys, err := KeysFromOntologyIds(ontology.ResourceIDs(labelResources))
+	keys, err := KeysFromOntologyIDs(ontology.ResourceIDs(labelResources))
 	if err != nil {
 		return nil, err
 	}

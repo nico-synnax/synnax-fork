@@ -17,8 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/synnaxlabs/synnax/pkg/distribution/channel"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/core"
-	changex "github.com/synnaxlabs/x/change"
+	xchange "github.com/synnaxlabs/x/change"
 	"github.com/synnaxlabs/x/errors"
 	"github.com/synnaxlabs/x/gorp"
 	"github.com/synnaxlabs/x/iter"
@@ -60,10 +59,7 @@ var _ gorp.Entry[string] = Alias{}
 func (a Alias) GorpKey() string { return aliasKey(a.Range, a.Channel) }
 
 // SetOptions implements gorp.Entry.
-func (a Alias) SetOptions() []any {
-	// TODO: Figure out if we should return leaseholder here.
-	return nil
-}
+func (a Alias) SetOptions() []any { return nil }
 
 const aliasOntologyType ontology.Type = "range-alias"
 
@@ -86,7 +82,7 @@ var aliasSchema = zyn.Object(map[string]zyn.Schema{
 })
 
 func newAliasResource(a Alias) ontology.Resource {
-	return core.NewResource(
+	return ontology.NewResource(
 		aliasSchema,
 		AliasOntologyID(a.Range, a.Channel),
 		a.Alias,
@@ -97,7 +93,7 @@ func newAliasResource(a Alias) ontology.Resource {
 type (
 	aliasOntologyService struct{ db *gorp.DB }
 
-	aliasChange = changex.Change[string, Alias]
+	aliasChange = xchange.Change[string, Alias]
 )
 
 var _ ontology.Service = (*aliasOntologyService)(nil)
@@ -108,17 +104,23 @@ func (a *aliasOntologyService) Type() ontology.Type { return aliasOntologyType }
 func (s *aliasOntologyService) Schema() zyn.Schema { return aliasSchema }
 
 // RetrieveResource implements ontology.Service.
-func (s *aliasOntologyService) RetrieveResource(ctx context.Context, key string, tx gorp.Tx) (ontology.Resource, error) {
+func (s *aliasOntologyService) RetrieveResource(
+	ctx context.Context,
+	key string,
+	tx gorp.Tx,
+) (ontology.Resource, error) {
 	rangeKey, channelKey, err := parseAliasKey(key)
 	if err != nil {
-		return ontology.Resource{}, nil
+		return ontology.Resource{}, err
 	}
 	var res Alias
-	err = gorp.NewRetrieve[string, Alias]().
+	if err := gorp.NewRetrieve[string, Alias]().
 		WhereKeys(Alias{Range: rangeKey, Channel: channelKey}.GorpKey()).
 		Entry(&res).
-		Exec(ctx, tx)
-	return newAliasResource(res), err
+		Exec(ctx, tx); err != nil {
+		return ontology.Resource{}, err
+	}
+	return newAliasResource(res), nil
 }
 
 func translateAliasChange(c aliasChange) ontology.Change {
@@ -130,7 +132,9 @@ func translateAliasChange(c aliasChange) ontology.Change {
 }
 
 // OnChange implements ontology.Service.
-func (s *aliasOntologyService) OnChange(f func(ctx context.Context, nexter iter.Nexter[ontology.Change])) observe.Disconnect {
+func (s *aliasOntologyService) OnChange(
+	f func(context.Context, iter.Nexter[ontology.Change]),
+) observe.Disconnect {
 	handleChange := func(ctx context.Context, reader gorp.TxReader[string, Alias]) {
 		f(ctx, iter.NexterTranslator[aliasChange, ontology.Change]{
 			Wrap: reader, Translate: translateAliasChange,
@@ -140,10 +144,16 @@ func (s *aliasOntologyService) OnChange(f func(ctx context.Context, nexter iter.
 }
 
 // OpenNexter implements ontology.Service.
-func (s *aliasOntologyService) OpenNexter() (iter.NexterCloser[ontology.Resource], error) {
+func (s *aliasOntologyService) OpenNexter() (
+	iter.NexterCloser[ontology.Resource],
+	error,
+) {
 	n, err := gorp.WrapReader[string, Alias](s.db).OpenNexter()
+	if err != nil {
+		return nil, err
+	}
 	return iter.NexterCloserTranslator[Alias, ontology.Resource]{
 		Wrap:      n,
 		Translate: newAliasResource,
-	}, err
+	}, nil
 }
