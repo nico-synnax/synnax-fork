@@ -10,6 +10,7 @@
 package resource
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/samber/lo"
@@ -24,8 +25,7 @@ import (
 // service in the cluster.
 type Type string
 
-// ZeroType is the zero type and should be assigned to any resource.
-const ZeroType = Type("")
+var _ fmt.Stringer = Type("")
 
 // String implements fmt.Stringer.
 func (t Type) String() string { return string(t) }

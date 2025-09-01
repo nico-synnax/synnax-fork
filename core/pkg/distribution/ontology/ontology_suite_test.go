@@ -17,7 +17,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/resource"
 	"github.com/synnaxlabs/x/gorp"
 	"github.com/synnaxlabs/x/iter"
 	"github.com/synnaxlabs/x/kv/memkv"
@@ -56,7 +55,12 @@ func (s *sampleService) RetrieveResource(
 	key string,
 	_ gorp.Tx,
 ) (ontology.Resource, error) {
-	return resource.New(s.Schema(), newSampleType(key), "empty", Sample{Key: key}), nil
+	return ontology.NewResource(
+		s.Schema(),
+		newSampleType(key),
+		"empty",
+		Sample{Key: key},
+	), nil
 }
 
 func (s *sampleService) OpenNexter() (iter.NexterCloser[ontology.Resource], error) {

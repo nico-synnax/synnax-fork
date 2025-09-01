@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/resource"
 	xchange "github.com/synnaxlabs/x/change"
 	"github.com/synnaxlabs/x/gorp"
 	"github.com/synnaxlabs/x/iter"
@@ -25,16 +24,16 @@ import (
 
 const ontologyType ontology.Type = "group"
 
-func OntologyID(key uuid.UUID) resource.ID {
+func OntologyID(key uuid.UUID) ontology.ID {
 	return ontology.ID{Type: ontologyType, Key: key.String()}
 }
 
-func OntologyIDs(keys []uuid.UUID) []resource.ID {
-	return lo.Map(keys, func(k uuid.UUID, _ int) resource.ID { return OntologyID(k) })
+func OntologyIDs(keys []uuid.UUID) []ontology.ID {
+	return lo.Map(keys, func(k uuid.UUID, _ int) ontology.ID { return OntologyID(k) })
 }
 
 func newResource(g Group) ontology.Resource {
-	return resource.New(schema, OntologyID(g.Key), g.Name, g)
+	return ontology.NewResource(schema, OntologyID(g.Key), g.Name, g)
 }
 
 type change = xchange.Change[uuid.UUID, Group]

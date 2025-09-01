@@ -122,13 +122,13 @@ type Config struct {
 	// [REQUIRED]
 	DB     *gorp.DB
 	Framer *framer.Service
-	// rackStateAliveThreshold is the threshold for determining if a rack is alive.
+	// RackStateAliveThreshold is the threshold for determining if a rack is alive.
 	RackStateAliveThreshold telem.TimeSpan
 }
 
 var (
 	_ config.Config[Config] = Config{}
-	// DefaultConfig is the default configuration or opening the tracker service. This
+	// DefaultConfig is the default configuration for opening the tracker service. This
 	// configuration is not valid on its own, and must be overridden with the required
 	// fields detailed in the Config struct.
 	DefaultConfig = Config{RackStateAliveThreshold: telem.Second * 3}
