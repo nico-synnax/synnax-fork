@@ -19,7 +19,6 @@ import (
 	"github.com/synnaxlabs/synnax/pkg/distribution/framer"
 	"github.com/synnaxlabs/synnax/pkg/distribution/mock"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology"
-	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/resource"
 	"github.com/synnaxlabs/synnax/pkg/distribution/ontology/signals"
 	"github.com/synnaxlabs/x/change"
 	"github.com/synnaxlabs/x/confluence"
@@ -115,7 +114,7 @@ var _ = Describe("Signals", Ordered, func() {
 					{
 						Variant: change.Set,
 						Key:     newChangeID(key),
-						Value: resource.New(
+						Value: ontology.NewResource(
 							svc.Schema(),
 							newChangeID(key),
 							"empty",
