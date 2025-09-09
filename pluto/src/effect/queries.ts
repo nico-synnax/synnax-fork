@@ -1,4 +1,5 @@
 import { effect, label, ontology } from "@synnaxlabs/client";
+import { useEffect } from "react";
 import z from "zod";
 
 import { Flux } from "@/flux";
@@ -34,6 +35,11 @@ const STATUS_LISTENER: Flux.ChannelListener<SubStore, typeof effect.statusZ> = {
       if (prev == null) return prev;
       return { ...prev, status: changed };
     }),
+};
+
+export const useSetSynchronizer = (onSet: (effect: effect.Effect) => void): void => {
+  const store = Flux.useStore<SubStore>();
+  useEffect(() => store.effects.onSet(onSet), [store]);
 };
 
 export const STORE_CONFIG: Flux.UnaryStoreConfig<SubStore, effect.Key, effect.Effect> =

@@ -4,8 +4,8 @@ import {
   NotFoundError,
   type slate,
 } from "@synnaxlabs/client";
-import { Button, Flex, Icon, Status, Synnax, Text } from "@synnaxlabs/pluto";
-import { status } from "@synnaxlabs/x";
+import { Button, Effect, Flex, Icon, Status, Synnax, Text } from "@synnaxlabs/pluto";
+import { status, TimeStamp } from "@synnaxlabs/x";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactElement, useCallback, useState } from "react";
 import { useStore } from "react-redux";
@@ -87,14 +87,15 @@ const Loaded = ({ effect, layoutKey }: LoadedProps): ReactElement => {
 };
 
 const EffectState = ({ effect }: { effect: effect.Effect }) => {
-  const client = Synnax.use();
-  const [status, setStatus] = useState<effect.Status | null>(null);
+  const [s, setS] = useState<effect.Status | null>(null);
   const addStatus = Status.useAdder();
-  return (
-    <Text.Text variant={status?.variant}>
-      {status?.message ?? "Effect has not been deployed yet."}
-    </Text.Text>
-  );
+  Effect.useSetSynchronizer((e) => {
+    if (e.status == null) return;
+    e.status.time = TimeStamp.now();
+    setS(e.status);
+    addStatus(e.status);
+  });
+  return <Status.Summary {...s} />;
 };
 
 export const Edit: Layout.Renderer = ({ layoutKey }) => {
