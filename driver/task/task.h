@@ -87,7 +87,7 @@ const std::string TASK_STATE_CHANNEL = "sy_task_status";
 /// easily update their state.
 class Context {
 public:
-    /// @brief the client used to communicate with the Synnax server.
+    /// @brief the client used to communicate with the Synnax core.
     std::shared_ptr<synnax::Synnax> client;
 
     Context() = default;
@@ -97,7 +97,7 @@ public:
     explicit Context(std::shared_ptr<synnax::Synnax> client):
         client(std::move(client)) {}
 
-    /// @brief updates the state of the task in the Synnax cluster.
+    /// @brief updates the state of the task in the Synnax core.
     virtual void set_status(const synnax::TaskStatus &status) = 0;
 };
 
@@ -237,16 +237,16 @@ public:
         factory(std::move(factory)),
         channels({}) {}
 
-    /// @brief runs the main task manager loop, booting up initial tasks retrieved
-    /// from the cluster, and processing task modifications (set, delete, and
-    /// command) requests through streamed channel values. Note that this function
-    /// does not for a thread to run in, and blocks until stop() is called.
+    /// @brief runs the main task manager loop, booting up initial tasks retrieved from
+    /// the core, and processing task modifications (set, delete, and command) requests
+    /// through streamed channel values. Note that this function does not for a thread
+    /// to run in, and blocks until stop() is called.
     ///
-    /// This function NOT be called concurrently with any other calls
-    /// to run(). It is safe to call run() concurrently with stop().
+    /// This function NOT be called concurrently with any other calls to run(). It is
+    /// safe to call run() concurrently with stop().
     ///
-    /// @param on_started an optional callback that will be called when the manager
-    /// has started successfully.
+    /// @param on_started an optional callback that will be called when the manager has
+    /// started successfully.
     xerrors::Error run(std::function<void()> on_started = nullptr);
 
     /// @brief stops the task manager, halting all tasks and freeing all resources.

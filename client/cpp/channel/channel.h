@@ -42,8 +42,8 @@ struct Channel {
     std::string name;
     /// @brief the data type of the channel.
     telem::DataType data_type;
-    /// @brief the key of the channel. This is auto-assigned by the cluster on calls
-    /// to create and retrieve.
+    /// @brief the key of the channel. This is auto-assigned by the Core on calls to
+    /// create and retrieve.
     ChannelKey key = 0;
     /// @brief The key of the channel that indexes this channel. This field must be
     /// set if the channel is not an index channel.
@@ -52,12 +52,11 @@ struct Channel {
     bool is_index = false;
     /// @brief The leaseholder of the channel.
     std::uint32_t leaseholder = 0;
-    /// @brief Whether the channel is virtual. Virtual channels are not stored in
-    /// the Synnax database, and are purely used for streaming and communication
-    /// purposes.
+    /// @brief Whether the channel is virtual. Virtual channels are not stored in the
+    /// Synnax core, and are purely used for streaming and communication purposes.
     bool is_virtual = false;
     /// @brief Whether the channel is an internal channel. Internal channels are
-    /// created by the DB and generally should not be interacted with unless you
+    /// created by the core and generally should not be interacted with unless you
     /// know what you're doing.
     bool internal = false;
 
@@ -120,7 +119,7 @@ map_channel_Keys(const std::vector<Channel> &channels) {
     return map;
 }
 
-/// @brief ChannelClient for creating and retrieving channels from a Synnax cluster.
+/// @brief ChannelClient for creating and retrieving channels from Synnax.
 class ChannelClient {
 public:
     ChannelClient() = default;
@@ -132,7 +131,7 @@ public:
         retrieve_client(std::move(retrieve_client)),
         create_client(std::move(create_client)) {}
 
-    /// @brief Creates the given channel in the Synnax cluster.
+    /// @brief Creates the given channel in the Synnax core.
     /// @param channel The channel to create.
     /// @modifies channel Assigns a unique key to the channel.
     /// @returns an error where ok() is false if the channel could not be created.
@@ -140,7 +139,7 @@ public:
     /// type.
     [[nodiscard]] xerrors::Error create(Channel &channel) const;
 
-    /// @brief creates the given channels in the Synnax cluster.
+    /// @brief creates the given channels in the Synnax core.
     /// @details More efficient than calling create on each channel individually,
     /// and also provides atomicity guarantees.
     /// @modifies channels Assigns a unique key to each channel.

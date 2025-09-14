@@ -42,8 +42,8 @@ struct OutputChan {
         cmd_ch_key(parser.required<uint32_t>("cmd_key", "cmd_channel")),
         state_ch_key(parser.required<uint32_t>("state_key", "state_channel")) {}
 
-    /// @brief binds cluster information about the channel after it has been
-    /// externally fetched.
+    /// @brief binds core information about the channel after it has been externally
+    /// fetched.
     void bind_remote_info(const synnax::Channel &state_ch) {
         this->state_ch = state_ch;
     }

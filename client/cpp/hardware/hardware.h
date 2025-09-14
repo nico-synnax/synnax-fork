@@ -483,9 +483,8 @@ struct HardwareDeviceRetrieveRequest {
     }
 };
 
-/// @brief Client for managing hardware components in a Synnax cluster.
-/// Provides methods for creating, retrieving, and deleting racks, tasks, and
-/// devices.
+/// @brief Client for managing hardware components on the Synnax core. Provides methods
+/// for creating, retrieving, and deleting racks, tasks, and devices.
 class HardwareClient {
 public:
     /// @brief Constructs a new hardware client with the given transport clients.
@@ -519,14 +518,14 @@ public:
         device_retrieve_client(std::move(device_retrieve_client)),
         device_delete_client(std::move(device_delete_client)) {}
 
-    /// @brief Creates a rack in the cluster.
+    /// @brief Creates a rack in the core.
     /// @param rack The rack to create. Will be updated with the assigned key and
     /// task client.
     /// @returns An error if the creation failed.
     [[nodiscard]]
     xerrors::Error create_rack(Rack &rack) const;
 
-    /// @brief Creates a rack with the given name in the cluster.
+    /// @brief Creates a rack with the given name in the core.
     /// @param name The name of the rack to create.
     /// @returns A pair containing the created rack and an error if one occurred.
     [[nodiscard]]
@@ -568,13 +567,13 @@ public:
     std::pair<std::vector<Device>, xerrors::Error>
     retrieve_devices(HardwareDeviceRetrieveRequest &req) const;
 
-    /// @brief Creates a device in the cluster.
+    /// @brief Creates a device in the core.
     /// @param device The device to create. Will be updated with the assigned key.
     /// @returns An error if the creation failed.
     [[nodiscard]]
     xerrors::Error create_device(Device &device) const;
 
-    /// @brief Creates multiple devices in the cluster.
+    /// @brief Creates multiple devices in the core.
     /// @param devs The devices to create. Will be updated with the assigned keys.
     /// @returns An error if the creation failed.
     [[nodiscard]]

@@ -181,8 +181,8 @@ class WriteTask final : public task::Task {
     pipeline::Acquisition state_write_pipe;
 
 public:
-    /// @brief base constructor that takes in pipeline factories to allow the
-    /// caller to stub cluster communication during tests.
+    /// @brief base constructor that takes in pipeline factories to allow the caller to
+    /// stub core communication during tests.
     explicit WriteTask(
         const synnax::Task &task,
         const std::shared_ptr<task::Context> &ctx,
@@ -206,8 +206,8 @@ public:
             breaker_cfg
         ) {}
 
-    /// @brief primary constructor that uses the task context's Synnax client for
-    /// cluster communication.
+    /// @brief primary constructor that uses the task context's Synnax client for core
+    /// communication.
     explicit WriteTask(
         const synnax::Task &task,
         const std::shared_ptr<task::Context> &ctx,

@@ -44,7 +44,7 @@ inline void check_little_endian() {
 /// @brief Configuration for opening a Synnax client.
 /// @see Synnax
 struct Config {
-    /// @brief the host of a node in the cluster.
+    /// @brief the host of a node in the core.
     std::string host = "localhost";
     /// @brief the port for the specified host.
     std::uint16_t port = 9090;
@@ -91,7 +91,7 @@ struct Config {
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Config &cfg) {
-        os << xlog::SHALE() << "  " << "cluster address" << xlog::RESET() << ": "
+        os << xlog::SHALE() << "  " << "core address" << xlog::RESET() << ": "
            << cfg.address() << "\n"
            << "  " << xlog::SHALE() << "username" << xlog::RESET() << ": "
            << cfg.username << "\n"
@@ -110,10 +110,10 @@ struct Config {
     }
 
     /// @brief returns true if the configuration uses TLS encryption to secure
-    /// communications with the cluster.
+    /// communications with the core.
     [[nodiscard]] bool is_secure() const { return !this->ca_cert_file.empty(); }
 
-    /// @brief returns the address of the cluster in the form "host:port".
+    /// @brief returns the address of the core in the form "host:port".
     [[nodiscard]]
     std::string address() const {
         return this->host + ":" + std::to_string(this->port);
@@ -134,15 +134,15 @@ struct Config {
     }
 };
 
-/// @brief Client to perform operations against a Synnax cluster.
+/// @brief Client to perform operations against a Synnax core.
 class Synnax {
 public:
-    /// @brief Client for creating and retrieving channels in a cluster.
+    /// @brief Client for creating and retrieving channels in Synnax.
     ChannelClient channels = ChannelClient(nullptr, nullptr);
     /// @brief Client for creating, retrieving, and performing operations on ranges
-    /// in a cluster.
+    /// in Synnax.
     RangeClient ranges = RangeClient(nullptr, nullptr, nullptr, nullptr, nullptr);
-    /// @brief Client for reading and writing telemetry to a cluster.
+    /// @brief Client for reading and writing telemetry to Synnax.
     FrameClient telem = FrameClient(nullptr, nullptr, ChannelClient());
     /// @brief Client for managing devices and their configuration.
     HardwareClient hardware = HardwareClient(

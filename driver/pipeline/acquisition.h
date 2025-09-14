@@ -82,8 +82,8 @@ public:
     virtual ~WriterFactory() = default;
 };
 
-/// @brief an implementation of the pipeline::Writer interface that is backed
-/// by a Synnax writer that writes data to a cluster.
+/// @brief an implementation of the pipeline::Writer interface that is backed by a
+/// Synnax writer that writes data to the core.
 class SynnaxWriter final : public pipeline::Writer {
     /// @brief the internal Synnax writer that this writer wraps.
     synnax::Writer internal;
@@ -98,8 +98,8 @@ public:
     [[nodiscard]] xerrors::Error close() override;
 };
 
-/// @brief an implementation of the pipeline::WriterFactory interface that is
-/// backed by an actual synnax client connected to a cluster.
+/// @brief an implementation of the pipeline::WriterFactory interface that is backed by
+/// an actual synnax client connected to a core.
 class SynnaxWriterFactory final : public WriterFactory {
     /// @brief the Synnax client to use for opening writers.
     std::shared_ptr<synnax::Synnax> client;
@@ -133,8 +133,7 @@ class Acquisition final : public Base {
     void run() override;
 
 public:
-    /// @brief construct an acquisition pipeline that opens writers on a Synnax
-    /// database cluster.
+    /// @brief construct an acquisition pipeline that opens writers on a Synnax core.
     /// @param client the Synnax client to use for writing data.
     /// @param writer_config the configuration for the Synnax writer. This
     /// configuration will have its start time set to the first timestamp read from

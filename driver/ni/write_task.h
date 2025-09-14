@@ -30,8 +30,8 @@ namespace ni {
 /// @brief WriteTaskConfig is the configuration for creating an NI Digital or Analog
 /// Write Task.
 struct WriteTaskConfig : common::BaseWriteTaskConfig {
-    /// @brief the rate at which the task will publish the states of the outputs
-    /// back to the Synnax cluster.
+    /// @brief the rate at which the task will publish the states of the outputs back to
+    /// the Synnax core.
     const telem::Rate state_rate;
     /// @brief a map of command channel keys to the configurations for each output
     /// channel in the task.
@@ -59,12 +59,12 @@ struct WriteTaskConfig : common::BaseWriteTaskConfig {
     const WriteTaskConfig &operator=(const WriteTaskConfig &) = delete;
 
     /// @brief constructs the configuration from the provided JSON parser, using the
-    /// client to fetch any remote data from the Synnax cluster.
-    /// @param client - Synnax client used to fetch remote data from the cluster.
+    /// client to fetch any remote data from the Synnax core.
+    /// @param client - Synnax client used to fetch remote data from the core.
     /// @param cfg - The JSON configuration for the task.
-    /// @details any errors encountered while parsing the configuration will be
-    /// added as field errors to the provided parser. The caller should use
-    /// cfg.error() after this constructor in order to check for these errors.
+    /// @details any errors encountered while parsing the configuration will be added as
+    /// field errors to the provided parser. The caller should use cfg.error() after
+    /// this constructor in order to check for these errors.
     explicit WriteTaskConfig(
         const std::shared_ptr<synnax::Synnax> &client,
         xjson::Parser &cfg

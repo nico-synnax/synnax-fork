@@ -24,15 +24,15 @@ import {
 } from "@/environment";
 import { Meta } from "@/meta";
 
-/** Carrier is an entitty that can carry trace metadata across process bounds */
+/** Carrier is an entity that can carry trace metadata across process bounds */
 export type Carrier = Record<string, string>;
 
 /** Function that executes under the given span */
 export type SpanF = (span: Span) => unknown;
 
 /**
- * Tracer wraps an opentelemetry tracer to provide an opinionated intreface
- * for tracing within the Synnax stack.
+ * Tracer wraps an opentelemetry tracer to provide an opinionated interface for tracing
+ * within the Synnax stack.
  */
 export class Tracer {
   private meta: Meta = Meta.NOOP;

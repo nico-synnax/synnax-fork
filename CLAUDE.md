@@ -39,7 +39,7 @@ The repository includes comprehensive integration testing:
 - Tests cover read, write, streaming, and delete operations across all client languages
 - Run with configurable parameters for stress testing and performance measurement
 - Tests validate the entire system from Python/TypeScript/C++ clients through Synnax
-  server to Cesium storage
+  core to Cesium storage
 
 ### Go Development
 
@@ -58,7 +58,7 @@ systems.
 
 ### Key Components
 
-#### 1. Synnax Server (Go) - `/core/`
+#### 1. Synnax Core (Go) - `/core/`
 
 The core time-series engine with 4-layer architecture:
 
@@ -111,7 +111,6 @@ Cross-platform desktop application:
 - **Tauri (Rust) + React** for native performance with web UI
 - **Redux Toolkit** for complex state management with persistence
 - **Drag-and-drop layout system** for custom interface building
-- **Embedded Synnax server** capability for standalone deployments
 
 #### 7. Driver - `/driver/` (C++)
 
@@ -120,20 +119,20 @@ Real-time hardware integration system:
 - **Task-based architecture** with separate acquisition and control pipelines
 - **Device abstraction** supporting LabJack, National Instruments, OPC UA
 - **Real-time OS support** including NI Linux RT
-- **Heartbeat mechanism** with 1Hz health reporting to cluster
+- **Heartbeat mechanism** with 1Hz health reporting to Synnax core
 
 ### Data Flow Patterns
 
 #### Telemetry Ingestion
 
 ```
-Hardware → Driver (C++) → Synnax Server (Go) → Cesium Storage → Distribution → Clients
+Hardware → Driver (C++) → Synnax Core (Go) → Cesium Storage → Distribution → Clients
 ```
 
 #### Control Commands
 
 ```
-Client → Synnax Server → Validation → Distribution → Driver → Hardware (with feedback)
+Client → Synnax Core → Validation → Distribution → Driver → Hardware (with feedback)
 ```
 
 #### Cluster Communication
@@ -171,8 +170,7 @@ Node A ←→ Aspen Gossip ←→ Node B (metadata sync)
 
 ### Development Guidelines
 
-- **Strict layering** - dependencies only flow downward in the 4-layer server
-  architecture
+- **Strict layering** - dependencies only flow downward in the 4-layer core architecture
 - **Protocol agnostic** - use Freighter abstractions rather than direct HTTP/gRPC
 - **Real-time focus** - optimize for low-latency, high-frequency data streams
 - **Multi-language consistency** - maintain API parity across Go, TypeScript, Python,
@@ -202,7 +200,7 @@ Node A ←→ Aspen Gossip ←→ Node B (metadata sync)
 - Driver components require specific hardware SDKs (LabJack LJM, NI DAQmx) for
   compilation
 - Pluto components use worker threads - ensure proper serialization for data passing
-- Integration tests require running Synnax server instances - check for port conflicts
+- Integration tests require running Synnax core instances - check for port conflicts
 
 ### Performance Considerations
 

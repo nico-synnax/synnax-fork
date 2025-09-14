@@ -87,8 +87,8 @@ public:
 };
 
 
-/// @brief an implementation of the pipeline::Streamer interface that is backed
-/// by a Synnax streamer that receives data from a cluster.
+/// @brief an implementation of the pipeline::Streamer interface that is backed by a
+/// Synnax streamer that receives data from the core.
 class SynnaxStreamer final : public Streamer {
     /// @brief the wrapped synnax streamer.
     synnax::Streamer internal;
@@ -110,7 +110,7 @@ public:
 };
 
 /// @brief an implementation of the pipeline::StreamerFactory interface that is
-/// backed by an actual synnax client connected to a cluster.
+/// backed by an actual synnax client connected to a core.
 class SynnaxStreamerFactory final : public StreamerFactory {
     /// @brief the Synnax client to use for opening streamers.
     const std::shared_ptr<synnax::Synnax> client;
@@ -143,8 +143,7 @@ class Control final : public Base {
     std::unique_ptr<Streamer> streamer = nullptr;
 
 public:
-    /// @brief constructs a new control pipeline that opens streamers on a Synnax
-    /// database cluster.
+    /// @brief constructs a new control pipeline that opens streamers on a Synnax core.
     /// @param client the Synnax client to use for opening streamers.
     /// @param streamer_config the configuration for the Synnax streamer.
     /// @param sink the sink to write data to. See the Sink interface for more

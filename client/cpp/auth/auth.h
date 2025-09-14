@@ -30,7 +30,7 @@
 /// @brief auth metadata key. NOTE: This must be lowercase, GRPC will panic on
 /// capitalized or uppercase keys.
 const std::string HEADER_KEY = "authorization";
-/// @brief auth token prefix that will be parsed by the cluster.
+/// @brief auth token prefix that will be parsed by the core.
 const std::string HEADER_VALUE_PREFIX = "Bearer ";
 const std::string AUTH_ENDPOINT = "/auth/login";
 
@@ -44,16 +44,15 @@ const xerrors::Error EXPIRED_TOKEN = AUTH_ERROR.sub("expired_token");
 const xerrors::Error INVALID_CREDENTIALS = AUTH_ERROR.sub("invalid-credentials");
 const std::vector RETRY_ON_ERRORS = {INVALID_TOKEN, EXPIRED_TOKEN};
 
-/// @brief diagnostic information about the Synnax cluster.
+/// @brief diagnostic information about the Synnax core.
 struct ClusterInfo {
-    /// @brief a unique UUID key for the cluster.
+    /// @brief a unique UUID key for the core.
     std::string cluster_key;
     /// @brief the version string of the Synnax node. Follows the semver format.
     std::string node_version;
-    /// @brief the key of the node within the cluster.
+    /// @brief the key of the node within the core.
     std::uint16_t node_key = 0;
-    /// @brief the time of the node at the midpoint of the server processing the
-    /// request.
+    /// @brief the time of the node at the midpoint of the core processing the request.
     telem::TimeStamp node_time = telem::TimeStamp(0);
 
     ClusterInfo() = default;
@@ -72,7 +71,7 @@ class AuthMiddleware final : public freighter::PassthroughMiddleware {
     /// Token to be used for authentication. Empty when auth_attempted is false or error
     /// is not nil.
     std::string token;
-    /// Whether the middleware has successfully authenticated with the server.
+    /// Whether the middleware has successfully authenticated with the core.
     std::atomic<bool> authenticated = false;
     /// Transport for authentication requests.
     std::unique_ptr<AuthLoginClient> login_client;
@@ -82,12 +81,12 @@ class AuthMiddleware final : public freighter::PassthroughMiddleware {
     std::string password;
     /// @brief
     std::mutex mu;
-    /// @brief the maximum clock skew between the client and server before logging a
+    /// @brief the maximum clock skew between the client and core before logging a
     /// warning.
     telem::TimeSpan clock_skew_threshold;
 
 public:
-    /// Cluster information.
+    /// Core information.
     ClusterInfo cluster_info = ClusterInfo();
 
     AuthMiddleware(
@@ -121,13 +120,13 @@ public:
             auto direction = "ahead";
             if (skew_calc.skew() > telem::TimeSpan::ZERO()) direction = "behind";
             LOG(WARNING) << "measured excessive clock skew between this host and the "
-                            "Synnax cluster.";
+                            "Synnax core.";
             LOG(WARNING) << "this host (" << host << ") is " << direction
                          << "by approximately " << skew_calc.skew().abs();
             LOG(
                 WARNING
             ) << "this may cause problems with time-series data consistency. We highly "
-                 "recommend synchronizing your clock with the Synnax cluster.";
+                 "recommend synchronizing your clock with the Synnax core.";
         }
 
         this->authenticated = true;
@@ -135,7 +134,7 @@ public:
     }
 
     /// @brief implements freighter::Middleware, ensuring that all requests to the
-    /// Synnax cluster are appropriately authenticated.
+    /// Synnax core are appropriately authenticated.
     std::pair<freighter::Context, xerrors::Error>
     operator()(freighter::Context context, freighter::Next &next) override {
         if (!this->authenticated)

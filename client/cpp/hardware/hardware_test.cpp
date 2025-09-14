@@ -15,7 +15,7 @@
 std::mt19937 gen_rand = random_generator("Hardware Tests");
 
 namespace synnax {
-/// @brief it should correctly create a rack in the cluster.
+/// @brief it should correctly create a rack in the core.
 TEST(RackTests, testCreateRack) {
     const auto client = new_test_client();
     auto r = Rack("test_rack");
@@ -23,7 +23,7 @@ TEST(RackTests, testCreateRack) {
     ASSERT_EQ(r.name, "test_rack");
 }
 
-/// @brief it should correctly retrieve a rack from the cluster.
+/// @brief it should correctly retrieve a rack from the core.
 TEST(RackTests, testRetrieveRack) {
     const auto client = new_test_client();
     auto r = Rack("test_rack");
@@ -33,7 +33,7 @@ TEST(RackTests, testRetrieveRack) {
     ASSERT_EQ(r.key, r2.key);
 }
 
-/// @brief it should correctly delete a rack from the cluster.
+/// @brief it should correctly delete a rack from the core.
 TEST(RackTests, testDeleteRack) {
     const auto client = new_test_client();
     auto r = Rack("test_rack");

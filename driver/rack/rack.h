@@ -64,29 +64,28 @@ inline std::vector<std::string> default_integrations() {
     };
 }
 
-/// @brief the configuration information necessary for running the driver. The
-/// driver gets this configuration information from 3 places, in increasing order of
-/// priority.
+/// @brief the configuration information necessary for running the driver. The driver
+/// gets this configuration information from 3 places, in increasing order of priority.
 ///
 /// 1. Reasonable defaults.
-/// 2. Persisted state. The driver maintains a persisted state file (used by both
-/// the 'login' command and the task manager ot save rack information). Cached rack,
-/// cluster, and connection information will be kept in this file.
-/// 3. Configuration file. The driver can be provided with a configuration file
-/// using the --config flag followed by a path to a configuration file. This file
-/// can override the values in the persisted state file.
+/// 2. Persisted state. The driver maintains a persisted state file (used by both the
+/// 'login' command and the task manager ot save rack information). Cached rack, core,
+/// and connection information will be kept in this file.
+/// 3. Configuration file. The driver can be provided with a configuration file using
+/// the --config flag followed by a path to a configuration file. This file can override
+/// the values in the persisted state file.
 struct Config {
     /// @brief this is the rack that the driver will attach to on the server. If not
     /// provided, the driver will automatically create a new rack and persist it in
     /// state.
     synnax::Rack rack;
     /// @brief important info used to determine the identity of the driver when
-    /// connecting to a cluster. This is cached on the local file system to compare
-    /// and contrast.
+    /// connecting to a core. This is cached on the local file system to compare and
+    /// contrast.
     RemoteInfo remote_info;
     /// @brief timing options for tasks in the driver.
     common::TimingConfig timing;
-    /// @brief connection parameters to the Synnax cluster.
+    /// @brief connection parameters to the Synnax core.
     synnax::Config connection;
     /// @brief the list of integrations enabled for the driver.
     std::vector<std::string> integrations;
@@ -191,8 +190,8 @@ struct Config {
 xerrors::Error clear_persisted_state();
 
 /// @brief rack is the entry point for driver operation. It is responsible for
-/// communicating its identity to the Synnax cluster and managing the lifecycle
-/// of tasks that are assigned to it.
+/// communicating its identity to the Synnax core and managing the lifecycle of tasks
+/// that are assigned to it.
 class Rack {
     std::thread run_thread;
     std::unique_ptr<task::Manager> task_manager;

@@ -41,15 +41,15 @@ struct DefaultDetails {
     static DefaultDetails parse(xjson::Parser &) { return DefaultDetails{}; }
 };
 
-/// @brief a standardized type for communicating status information across a Synnax
-/// cluster.
+/// @brief a standardized type for communicating status information across Synnax
 /// @tparam Details - a custom details field that can be used to provide custom
 /// information from a specific status provider. This type must implement the following
 /// methods:
 ///
 ///     json to_json() - returns a nlohmann::json representation of the details.
-///     static Details parse(xjson::Parser &parser) - parses a Details object from
-///     its JSON representation.
+///
+///     static Details parse(xjson::Parser &parser) - parses a Details object from its
+///     JSON representation.
 template<typename Details = DefaultDetails>
 struct Status {
     /// @brief a unique key for the status message.

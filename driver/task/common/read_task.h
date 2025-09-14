@@ -105,7 +105,7 @@ class ReadTask final : public task::Task {
     /// @brief the task context used to communicate state changes back to Synnax.
     /// @brief tare middleware used for taring values.
     transform::Tare tare;
-    /// @brief handles communicating the task state back to the cluster.
+    /// @brief handles communicating the task state back to the core.
     StatusHandler state;
 
     /// @brief a wrapped source that gracefully handles shutdown when a hardware
@@ -165,7 +165,7 @@ class ReadTask final : public task::Task {
 
 public:
     /// @brief base constructor that takes in a pipeline writer factory to allow the
-    /// caller to stub cluster communication during tests.
+    /// caller to stub core communication during tests.
     explicit ReadTask(
         const synnax::Task &task,
         const std::shared_ptr<task::Context> &ctx,
@@ -178,8 +178,8 @@ public:
         source(std::make_shared<InternalSource>(*this, std::move(source))),
         pipe(factory, this->source->writer_config(), this->source, breaker_cfg) {}
 
-    /// @brief primary constructor that uses the task context's Synnax client in
-    /// order to communicate with the cluster.
+    /// @brief primary constructor that uses the task context's Synnax client in order
+    /// to communicate with the core.
     explicit ReadTask(
         const synnax::Task &task,
         const std::shared_ptr<task::Context> &ctx,

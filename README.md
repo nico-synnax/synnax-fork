@@ -8,7 +8,7 @@ Synnax is an observability and control platform designed for high-performance ha
 teams. Synnax aims to control the entire data lifecycle, from reading data from a sensor
 to writing bytes to a file, including a visualization engine and mechanisms for
 real-time propagation of data, allowing for the control of hardware. Synnax can be
-accessed both programatically through our client libraries and visually through our
+accessed both programmatically through our client libraries and visually through our
 Console application.
 
 ## Documentation
@@ -44,6 +44,8 @@ monorepo. The following is a summary of each:
   Python, and TypeScript.
 - [Console](console) - A data-visualization and graphical control application for macOS
   and Windows.
+- [Core](core) - The core Synnax server, which integrates Aspen and Cesium to provide a
+  unified telemetry system.
 - [Documentation Site](docs/site) - The code for the Synnax documentation website.
 - [Technical Documentation](docs/tech) - Technical documentation such as RFCs and
   contribution guides.
@@ -54,11 +56,9 @@ monorepo. The following is a summary of each:
   Python, and TypeScript) and protocols (GRPC, HTTP, and WebSockets).
 - [Pluto](pluto) - A React component library for building modular user interfaces on top
   of the Synnax telemetry engine.
-- [Synnax](synnax) - The core Synnax server, which integrates Aspen and Cesium to
-  provide a unified telemetry system.
 - [X](x) - Common utilities used by other projects.
 
 # Attributions
 
-The Synnax server uses [Pebble](https://github.com/cockroachdb/pebble), and usage must
+The Synnax core uses [Pebble](https://github.com/cockroachdb/pebble), and usage must
 follow their provided [disclaimer](licenses/BSD-3-Clause.txt).

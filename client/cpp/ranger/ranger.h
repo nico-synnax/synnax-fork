@@ -98,10 +98,10 @@ public:
     [[nodiscard]] xerrors::Error del(const std::string &key) const;
 };
 
-/// @brief a range is a user-defined region of a cluster's data. It's identified by
-/// a name, time range, and uniquely generated. See
-/// https://docs.synnaxlabs.com/reference/concepts/ranges for an introduction to
-/// ranges and how they work.
+/// @brief a range is a user-defined region of the Core's data. It's identified by a
+/// name, time range, and uniquely generated. See
+/// https://docs.synnaxlabs.com/reference/concepts/ranges for an introduction to ranges
+/// and how they work.
 class Range {
 public:
     Key key;
@@ -110,7 +110,7 @@ public:
     RangeKV kv = RangeKV("", nullptr, nullptr, nullptr);
 
     /// @brief constructs the range. Note that this does not mean the range has been
-    /// persisted to the cluster. To persist the range, call create, at which
+    /// persisted to the Core. To persist the range, call create, at which
     /// point a unique key will be generated for the range.
     /// @param name - a human-readable name for the range. Does not need to be
     /// unique, and should represent the data that the range contains i.e.
@@ -131,7 +131,7 @@ private:
     friend class RangeClient;
 };
 
-/// @brief a client for performing operations on the ranges in a Synnax cluster.
+/// @brief a client for performing operations on the ranges in a Synnax core.
 class RangeClient {
 public:
     RangeClient(

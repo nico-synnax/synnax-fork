@@ -45,7 +45,7 @@ int exec(int argc, char **argv);
 std::string version();
 
 namespace sub {
-/// @brief logs the user into a Synnax cluster.
+/// @brief logs the user into a Synnax core.
 int login(xargs::Parser &args);
 
 /// @brief starts the driver process.

@@ -951,43 +951,39 @@ public:
 /// Note for future editors of these types, using `inline const` is dangerous as it
 /// causes problems with density lookups.
 
-/// @brief identifier for an unknown data type in a Synnax cluster.
+/// @brief identifier for an unknown data type in Synnax.
 const DataType UNKNOWN_T(_priv::UNKNOWN_T);
-/// @brief identifier for a fixed-size float64 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size float64 data type in Synnax.
 const DataType FLOAT64_T(_priv::FLOAT64_T);
-/// @brief identifier for a fixed-size float32 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size float32 data type in Synnax.
 const DataType FLOAT32_T(_priv::FLOAT32_T);
-/// @brief identifier for a fixed-size int8 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size int8 data type in Synnax.
 const DataType INT8_T(_priv::INT8_T);
-/// @brief identifier for a fixed-size int16 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size int16 data type in Synnax.
 const DataType INT16_T(_priv::INT16_T);
-/// @brief identifier for a fixed-size int32 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size int32 data type in Synnax.
 const DataType INT32_T(_priv::INT32_T);
-/// @brief identifier for a fixed-size int64 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size int64 data type in Synnax.
 const DataType INT64_T(_priv::INT64_T);
-/// @brief identifier for a fixed-size timestamp data type in a Synnax cluster.
+/// @brief identifier for a fixed-size timestamp data type in Synnax.
 const DataType TIMESTAMP_T(_priv::TIMESTAMP_T);
-/// @brief identifier for a fixed-size uint8 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size uint8 data type in Synnax.
 const DataType UINT8_T(_priv::UINT8_T);
-/// @brief identifier for a fixed-size uint16 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size uint16 data type in Synnax.
 const DataType UINT16_T(_priv::UINT16_T);
-/// @brief identifier for a fixed-size uint32 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size uint32 data type in Synnax.
 const DataType UINT32_T(_priv::UINT32_T);
-/// @brief identifier for a fixed-size uint64 data type in a Synnax cluster.
+/// @brief identifier for a fixed-size uint64 data type in Synnax.
 const DataType UINT64_T(_priv::UINT64_T);
-/// @brief identifier for a fixed-size uint128 data type in a Synnax cluster (16
-/// bytes).
-const DataType UINT128_T(_priv::UINT128_T);
-/// @brief identifier for a fixed-size UUID data type in a Synnax cluster (16
-/// bytes).
+/// @brief identifier for a fixed-size UUID data type in Synnax (128 bytes).
 const DataType UUID_T(_priv::UUID_T);
-/// @brief identifier for a newline separated, variable-length string data type in a
-/// Synnax cluster. Note that variable-length data types have reduced performance
-/// and restricted use within a Synnax cluster.
+/// @brief identifier for a newline separated, variable-length string data type within
+/// Synnax. Note that variable-length data types have reduced performance and restricted
+/// uses within Synnax.
 const DataType STRING_T(_priv::STRING_T);
-/// @brief identifier for a newline separated, stringified JSON data type in a
-/// Synnax cluster. Note that variable-length data types have reduced performance
-/// and restricted use within a Synnax cluster.
+/// @brief identifier for a newline separated, stringified JSON data type in Synnax.
+/// Note that variable-length data types have reduced performance and restricted use
+/// within Synnax.
 const DataType JSON_T(_priv::JSON_T);
 }
 

@@ -122,8 +122,8 @@ class Task final : public task::Task {
     breaker::Breaker breaker;
     /// @brief thread is the thread that will execute the sequence.
     std::thread thread;
-    /// @brief ctx is the task execution context for communicating with the Synnax
-    /// cluster and updating the task state.
+    /// @brief ctx is the task execution context for communicating with the Synnax core
+    /// and updating the task state.
     std::shared_ptr<task::Context> ctx;
     /// @brief the compiled sequence that will be executed within the task.
     std::unique_ptr<sequence::Sequence> seq;

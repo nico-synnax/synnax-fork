@@ -85,16 +85,18 @@ class Series {
     std::unique_ptr<std::byte[]> data_;
 
 public:
-    /// @brief an optional property that defines the time range occupied by the
-    /// Series' data_. This property is guaranteed to be defined when reading data
-    /// from a Synnax Cluster, and is particularly useful for understanding the
-    /// alignment of samples in relation to another series.
+    /// @brief an optional property that defines the time range occupied by the Series'
+    /// data_. This property is guaranteed to be defined when reading data from Synnax,
+    /// and is particularly useful for understanding the alignment of samples in
+    /// relation to another series.
     ///
-    /// When reading from a cluster:
-    ///   - The start of the time range represents the timestamp of the first
-    ///     sample in the array (inclusive),
-    ///   - The end of the time range is set to the nanosecond AFTER the last sample
-    ///     in the array (exclusive).
+    /// When reading from a Synnax core:
+    ///
+    ///   - The start of the time range represents the timestamp of the first sample in
+    ///   the array (inclusive)
+    ///
+    ///   - The end of the time range is set to the nanosecond AFTER the last sample in
+    ///   the array (exclusive).
     ///
     TimeRange time_range = TimeRange();
     /// @brief alignment defines the location of the series relative to other series in

@@ -311,24 +311,28 @@ class Streamer {
 public:
     Streamer() = default;
 
-    /// @brief blocks until the next frame is received from the Synnax cluster. This
-    /// frame is not guaranteed to contain series for all channels specified when
-    /// opening the streamer, but it is guaranteed to contain data for at least one
-    /// channel and not contain data for any channels not specified.
-    /// @returns the next frame of telemetry received from the Synnax cluster and an
-    /// error. If error.ok() is false, then the streamer has failed and must be
-    /// closed.
-    /// @note read is not safe to call concurrently with itself or with close(), but
-    /// it is safe to call concurrently with setChannels().
+    /// @brief blocks until the next frame is received from the Synnax core. This frame
+    /// is not guaranteed to contain series for all channels specified when opening the
+    /// streamer, but it is guaranteed to contain data for at least one channel and not
+    /// contain data for any channels not specified.
+    ///
+    /// @returns the next frame of telemetry received from the Synnax core and an error.
+    /// If error.ok() is false, then the streamer has failed and must be closed.
+    ///
+    /// @note read is not safe to call concurrently with itself or with close(), but it
+    /// is safe to call concurrently with setChannels().
     [[nodiscard]] std::pair<Frame, xerrors::Error> read() const;
 
-    /// @brief sets the channels to stream from the Synnax cluster, replacing any
-    /// channels set during construction or a previous call to setChannels().
-    /// @returns an error. If error.ok() is false, then the streamer has failed and
-    /// must be closed.
+    /// @brief sets the channels to stream from the Synnax core, replacing any channels
+    /// set during construction or a previous call to setChannels().
+    ///
+    /// @returns an error. If error.ok() is false, then the streamer has failed and must
+    /// be closed.
+    ///
     /// @param channels - the channels to stream.
-    /// @note setChannels is not safe to call concurrently with itself or with
-    /// close(), but it is safe to call concurrently with read().
+    ///
+    /// @note setChannels is not safe to call concurrently with itself or with close(),
+    /// but it is safe to call concurrently with read().
     [[nodiscard]] xerrors::Error set_channels(const std::vector<ChannelKey> &channels);
 
     /// @brief closes the streamer and releases any resources associated with it. If
@@ -388,7 +392,7 @@ inline WriterMode data_saving_writer_mode(const bool data_saving) {
 }
 
 /// @brief configuration for opening a new Writer. For more information on writers,
-/// see https://docs.synnaxlabs.com/concepts/write.
+/// see https://docs.synnaxlabs.com/reference/concepts/writes.
 struct WriterConfig {
     /// @brief The channels to write to.
     std::vector<ChannelKey> channels;
@@ -466,20 +470,22 @@ class Writer {
 public:
     Writer() = default;
 
-    /// @brief writes the given frame of telemetry to the Synnax cluster.
-    /// @param fr the frame to write. This frame must adhere to a set of
-    /// constraints:
+    /// @brief writes the given frame of telemetry to the Synnax core.
+    ///
+    /// @param fr the frame to write. This frame must adhere to a set of constraints:
     ///
     /// 1. The frame must have at most 1 series per channel.
+    ///
     /// 2. The frame may not have series for any channel not specified in the
     /// WriterConfig when opening the writer.
-    /// 3. All series' that are written to the same index must have the same number
-    /// of samples.
-    /// 4. When writing to an index, the series' for the index must have
-    /// monotonically increasing int64 unix epoch timestamps.
     ///
-    /// For more information, see
-    /// https://docs.synnaxlabs.com/reference/concepts/writes.
+    /// 3. All series' that are written to the same index must have the same number of
+    /// samples.
+    ///
+    /// 4. When writing to an index, the series' for the index must have monotonically
+    /// increasing int64 unix epoch timestamps.
+    ///
+    /// For more information, see https://docs.synnaxlabs.com/reference/concepts/writes.
     ///
     /// @returns false if an error occurred in the write pipeline. After an error
     /// occurs, the caller must acknowledge the error by calling error() or close() on
@@ -511,8 +517,8 @@ public:
         const std::vector<telem::Authority> &authorities
     );
 
-    /// @brief commits all pending writes to the Synnax cluster. Commit can be
-    /// called multiple times, committing any new writes made since the last commit.
+    /// @brief commits all pending writes to the Synnax core. Commit can be called
+    /// multiple times, committing any new writes made since the last commit.
     ///
     /// @returns false if the commit failed. After a commit fails, the caller must
     /// acknowledge the error by calling error() or close() on the writer.
@@ -551,7 +557,7 @@ private:
     std::pair<api::v1::FrameWriterResponse, xerrors::Error>
     exec(api::v1::FrameWriterRequest &req, bool ack);
 
-    /// @brief opens a writer to the Synnax cluster.
+    /// @brief opens a writer to the Synnax core.
     explicit Writer(
         std::unique_ptr<WriterStream> s,
         WriterConfig cfg,
@@ -597,13 +603,13 @@ public:
 
 private:
     /// @brief freighter transport implementation for opening streamers to the
-    /// Synnax cluster.
+    /// Synnax core.
     std::unique_ptr<StreamerClient> streamer_client;
     /// @brief freighter transport implementation for opening writers to the Synnax
-    /// cluster.
+    /// core.
     std::unique_ptr<WriterClient> writer_client;
     /// @brief a utility function used to retrieve information about channels from the
-    /// cluster.
+    /// core.
     ChannelClient channel_client;
 };
 

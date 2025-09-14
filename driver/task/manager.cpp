@@ -65,7 +65,7 @@ xerrors::Error task::Manager::configure_initial_tasks() {
     VLOG(1) << "configuring initial tasks";
     auto [tasks, tasks_err] = this->rack.tasks.list();
     if (tasks_err) return tasks_err;
-    VLOG(1) << "retrieved " << tasks.size() << " tasks from cluster";
+    VLOG(1) << "retrieved " << tasks.size() << " tasks from core";
     for (const auto &task: tasks) {
         VLOG(1) << "configuring task " << task;
         if (task.snapshot) {
