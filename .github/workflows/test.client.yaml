@@ -101,8 +101,8 @@ jobs:
               - turbo.json
               - x/ts/**
 
-  server:
-    name: Build - Server
+  core:
+    name: Build - Core
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -133,7 +133,7 @@ jobs:
 
   cpp:
     name: Test - C++
-    needs: [changes, server]
+    needs: [changes, core]
     if: needs.changes.outputs.cpp == 'true'
     runs-on: ubuntu-latest
     services:
@@ -178,7 +178,7 @@ jobs:
 
   py:
     name: Test - Python
-    needs: [changes, server]
+    needs: [changes, core]
     if: needs.changes.outputs.py == 'true'
     runs-on: ubuntu-latest
     services:
@@ -226,7 +226,7 @@ jobs:
 
   ts:
     name: Test - TypeScript
-    needs: [changes, server]
+    needs: [changes, core]
     if: needs.changes.outputs.ts == 'true'
     runs-on: ubuntu-latest
     services:

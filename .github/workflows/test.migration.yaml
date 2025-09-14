@@ -31,7 +31,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Start Main Server
+      - name: Start Core (main)
         id: start_main
         run:
           docker run -d --name synnax-main -p 9090:9090 -v data:/usr/local/synnax/data
@@ -58,18 +58,17 @@ jobs:
         run: poetry install
         working-directory: client/py
 
-      - name: Python Test with Main Server
+      - name: Python Test with Core (main)
         run: poetry run pytest
         working-directory: client/py
 
-      - name: Stop Main Server
+      - name: Stop Core (main)
         if: always() && steps.start_main.outcome == 'success'
         run: |
           docker logs synnax-main
           docker stop synnax-main
           docker rm synnax-main
 
-      # Build and Test with Current Server
       - name: Checkout Current Branch
         uses: actions/checkout@v4
 
@@ -85,14 +84,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Current Server Image
+      - name: Build Current Core Image
         run: earthly --push +docker -tag=${GITHUB_SHA} -driver=false
         working-directory: core
 
-      - name: Push Current Server Image to Github Container Registry
+      - name: Push Current Core Image to Github Container Registry
         run: docker push ghcr.io/synnaxlabs/synnax:${GITHUB_SHA}
 
-      - name: Start Current Server
+      - name: Start Current Core
         id: start_current
         run:
           docker run -d --name synnax-current -p 9090:9090 -v
@@ -111,11 +110,11 @@ jobs:
         run: poetry install
         working-directory: client/py
 
-      - name: Python Test with Current Server
+      - name: Python Test with Current Core
         run: poetry run pytest
         working-directory: client/py
 
-      - name: Stop Current Server
+      - name: Stop Current Core
         if: always() && steps.start_current.outcome == 'success'
         run: |
           docker logs synnax-current

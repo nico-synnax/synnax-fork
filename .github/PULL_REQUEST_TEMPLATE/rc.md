@@ -19,12 +19,12 @@ previously released packages:
 - [ ] [`client/py`](https://pypi.org/project/synnax/)
 - [ ] [`client/ts`](https://www.npmjs.com/package/@synnaxlabs/client)
 - [ ] [`console`](https://github.com/synnaxlabs/synnax/releases)
+- [ ] [`core`](https://github.com/synnaxlabs/synnax/releases)
 - [ ] [`drift`](https://www.npmjs.com/package/@synnaxlabs/drift)
 - [ ] [`freighter/py`](https://pypi.org/project/synnax-freighter/)
 - [ ] [`freighter/ts`](https://www.npmjs.com/package/@synnaxlabs/freighter)
 - [ ] [`media`](https://npmjs.com/package/@synnaxlabs/media)
 - [ ] [`pluto`](https://npmjs.com/package/@synnaxlabs/pluto)
-- [ ] [`server`](https://github.com/synnaxlabs/synnax/releases)
 - [ ] [`x/ts`](https://www.npmjs.com/package/@synnaxlabs/x)
 
 ## Documentation
@@ -97,8 +97,8 @@ I can successfully:
   - [ ] Plot a basic calculated channel.
   - [ ] Plot a nested calculated channel.
   - [ ] Intentionally create a channel with an erroneous expression, plot it and make
-        sure the server and console remain stable and the error is logged to the server
-        and the console.
+        sure the core and console remain stable and the error is logged to the core and
+        the console.
   - [ ] Plot a calculated channel that uses channels with hyphenated names.
   - [ ] Run and plot channels from python calc_channel_stress.py setting `--rate` with
     - [ ] 10 Hz
@@ -520,7 +520,7 @@ I can successfully:
 - **Search and Command Palette**
   - [ ] Open an existing task configuration.
 - [ ] Open a task configuration from a link.
-- [ ] Start a task on server boot up when the "Auto start" option is enabled.
+- [ ] Start a task on driver boot up when the "Auto start" option is enabled.
 - [ ] Import a task from a file via the import task commands
 - [ ] Import a task from a file via drag-and-drop
 - [ ] Rename a task and ensure synchronization across:
@@ -602,7 +602,7 @@ I can successfully:
   - [ ] Out-of-range values.
   - [ ] Multiple tasks using the same channel.
   - [ ] Device disconnection during a running task.
-- [ ] Shut down the server (`Ctrl + C`) without errors from the driver routine.
+- [ ] Shut down the core (`Ctrl + C`) without errors from the driver routine.
 
 ### Control Sequences
 
@@ -634,7 +634,7 @@ I can successfully:
 
 I can successfully:
 
-- [ ] Enable and disable LabJack integration when starting the server.
+- [ ] Enable and disable LabJack integration when starting the .
 - [ ] Recognize and connect to a LabJack device available locally.
 - [ ] Run the driver on a machine without the LabJack library installed.
 - **Read Task**
@@ -644,7 +644,7 @@ I can successfully:
   - [ ] Plot data with a linear scale applied.
   - [ ] Stop, start, and reconfigure tasks multiple times.
   - [ ] Enable and disable data saving.
-  - [ ] Ensure no lag between sensor input and data written to the server.
+  - [ ] Ensure no lag between sensor input and data written to Synnax.
   - [ ] Configure and run a read task for a thermocouple.
   - [ ] Run a read task with thermocouples, digital, and analog channels.
   - [ ] Disconnect a device while reading, reconnect it, and read data after
@@ -673,7 +673,7 @@ I can successfully:
 
 I can successfully:
 
-- [ ] Enable and disable NI integration when starting the server.
+- [ ] Enable and disable NI integration when starting the driver.
 - [ ] Recognize and connect to an NI device locally.
 - [ ] Recognize and connect to NI devices over the network.
 - [ ] Recognize and connect to physical and simulated devices.
@@ -708,7 +708,7 @@ I can successfully:
   - [ ] Enable and disable data saving.
   - [ ] Enabled auto-start, and ensure that the task automatically starts after
         configuration.
-  - [ ] Ensure no lag between sensor input and server data recording.
+  - [ ] Ensure no lag between sensor input and Synnax data recording.
   - [ ] Configure and run an analog read task for the following channels:
     - [ ] Current (NI-9203)
     - [ ] Resistance (NI-9219)
@@ -743,7 +743,7 @@ I can successfully:
 
 I can successfully:
 
-- [ ] Enable and disable OPC UA integration when starting the server.
+- [ ] Enable and disable OPC UA integration when starting the driver.
 - [ ] Connect to an unencrypted OPC UA server.
 - [ ] Connect to an encrypted OPC UA server.
 - [ ] Create additional channels and move them to existing sampling groups.
@@ -771,4 +771,4 @@ I can successfully:
   - [ ] Perform control and verify changes on the connected OPC UA server.
   - [ ] Stop, start, and reconfigure tasks.
   - [ ] Enable and disable data saving.
-  - [ ] Perform a write operation on an encrypted server.
+  - [ ] Perform a write operation on an encrypte OPC UA server.

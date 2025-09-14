@@ -339,7 +339,7 @@ jobs:
       - name: Build Console Web Assets
         run: pnpm build:console-vite
 
-      - name: Copy Console Assets to Server
+      - name: Copy Console Assets to Core
         shell: bash
         run: |
           mkdir -p core/pkg/service/console/dist
@@ -354,7 +354,7 @@ jobs:
         run: |
           go build -tags driver,console -o synnax-v${{ needs.setup.outputs.VERSION }}-${{ steps.os.outputs.OS }}${{ steps.executable.outputs.EXECUTABLE }}
 
-      - name: Sign macOS Server Binary
+      - name: Sign macOS Core Binary
         if: matrix.os == 'macos-latest' && github.event_name == 'push'
         working-directory: core
         run: |
@@ -363,7 +363,7 @@ jobs:
           codesign --force --options runtime --timestamp --sign "$CERT_ID" ./synnax-v${{ needs.setup.outputs.VERSION }}-macos
           codesign --verify --verbose ./synnax-v${{ needs.setup.outputs.VERSION }}-macos
 
-      - name: Sign Windows Server Binary
+      - name: Sign Windows Core Binary
         if: matrix.os == 'windows-latest' && github.event_name == 'push'
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
