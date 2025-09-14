@@ -4,7 +4,7 @@
   "description": "Synnax Style Lint Configuration",
   "main": "index.js",
   "repository": "https://github.com/synnaxlabs/synnax/tree/main/configs/stylelint",
-  "author": "emilbon99@gmail.com",
+  "author": "ebonilla@synnaxlabs.com",
   "license": "MIT",
   "type": "module",
   "scripts": {

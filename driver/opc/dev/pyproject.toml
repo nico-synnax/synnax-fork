@@ -2,7 +2,7 @@
 name = "opc"
 version = "0.1.0"
 description = ""
-authors = ["Emiliano Bonilla <56323762+emilbon99@users.noreply.github.com>"]
+authors = ["Emiliano Bonilla <ebonilla@synnaxlabs.com>"]
 readme = "README.md"
 package-mode = false
 

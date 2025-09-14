@@ -52,7 +52,7 @@ export interface StreamSender<RQ extends z.ZodType> {
 
 /**
  * Extension of the StreamSender interface that allows the client to close the sending
- * direction of the stream when finished issuing requrest.
+ * direction of the stream when finished issuing request.
  */
 export interface StreamSenderCloser<RQ extends z.ZodType> extends StreamSender<RQ> {
   /**
