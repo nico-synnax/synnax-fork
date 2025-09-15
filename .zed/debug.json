@@ -1,0 +1,30 @@
+[
+  {
+    "label": "Debug Core",
+    "adapter": "Delve",
+    "request": "launch",
+    "mode": "debug",
+    "program": "./core",
+    "args": ["start", "-mi"]
+  },
+  {
+    "label": "Debug Console",
+    "adapter": "JavaScript",
+    "type": "chrome",
+    "request": "launch",
+    "url": "http://localhost:5173",
+    "webRoot": "${workspaceFolder}",
+    "preLauhchTask": "console: start dev server",
+    "trace": true,
+    "sourceMaps": true,
+    "resolveSourceMapLocations": [
+      "${workspaceFolder}/**",
+      "!**/node_modules/**"
+    ],
+    "sourceMapPathOverrides": {
+      "http://localhost:5173/src/*": "${workspaceFolder}/console/src/*",
+      "http://localhost:5173/@fs/*": "/*"
+    },
+    "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+  }
+]
