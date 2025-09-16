@@ -152,46 +152,29 @@ jobs:
             echo "No cached artifacts found, will build from scratch"
           fi
 
-  confirm-host-ubuntu-latest:
-    name: Confirm Host (ubuntu-latest)
+  confirm-host:
+    name: Confirm Host (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            script: integration/scripts/confirm_host_unix.sh
+            shell: bash
+          - os: windows-latest
+            script: integration/scripts/ConfirmHostWindows.cmd
+            shell: cmd
     runs-on:
       - self-hosted
-      - ubuntu-latest
+      - ${{ matrix.os }}
     needs: setup
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
       - name: Confirm Host
-        run: integration/scripts/confirm_host_unix.sh
-
-  confirm-host-windows-latest:
-    name: Confirm Host (windows-latest)
-    runs-on:
-      - self-hosted
-      - windows-latest
-    needs: setup
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-
-      - name: Confirm Host
-        shell: cmd
-        run: integration/scripts/ConfirmHostWindows.cmd
-
-  confirm-host-macos-latest:
-    name: Confirm Host (macos-latest)
-    runs-on:
-      - self-hosted
-      - macos-latest
-    needs: setup
-    if: false
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-
-      - name: Confirm Host
-        run: integration/scripts/confirm_host_unix.sh
+        shell: ${{ matrix.shell }}
+        run: ${{ matrix.script }}
 
   build:
     name: Build (${{ matrix.os }})
@@ -212,7 +195,7 @@ jobs:
             binary-suffix: windows.exe
             shell: cmd
     runs-on: ${{ matrix.os }}
-    needs: [setup, confirm-host-ubuntu-latest, confirm-host-windows-latest]
+    needs: [setup, confirm-host]
     steps:
       - name: Checkout Repository
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
