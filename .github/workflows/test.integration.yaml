@@ -190,6 +190,14 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/checkout@v5
 
+      - name: Cache Git Submodules
+        uses: actions/cache@v4
+        with:
+          path: |
+            .git/modules
+            **/.git
+          key: submodules-${{ hashFiles('.gitmodules') }}
+
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         run: git submodule update --init --recursive
@@ -201,9 +209,10 @@ jobs:
           path: |
             ~/.cache/bazel
             ~/.cache/bazelisk
-          key: bazel-cross-branch-restore-${{ github.sha }}
+          key: bazel-${{ runner.os }}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '**/*.bzl') }}
           restore-keys: |
             bazel-${{ runner.os }}-
+            bazel-
 
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -214,16 +223,36 @@ jobs:
           external-cache: true
           repository-cache: true
 
-      - name: Restore Go cache from other branches
+      - name: Restore Go cache
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/cache/restore@v4
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-cross-branch-restore-${{ github.sha }}
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
           restore-keys: |
             go-${{ runner.os }}-
+            go-
+
+      - name: Restore PNPM cache  
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+            pnpm-
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -301,6 +330,15 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/checkout@v5
 
+      - name: Cache Git Submodules
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            .git/modules
+            **/.git
+          key: submodules-${{ hashFiles('.gitmodules') }}
+
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         run: git submodule update --init --recursive
@@ -312,9 +350,10 @@ jobs:
           path: |
             ~/.cache/bazel
             ~/.cache/bazelisk
-          key: bazel-cross-branch-restore-${{ github.sha }}
+          key: bazel-${{ runner.os }}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '**/*.bzl') }}
           restore-keys: |
             bazel-${{ runner.os }}-
+            bazel-
 
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -325,16 +364,36 @@ jobs:
           external-cache: true
           repository-cache: true
 
-      - name: Restore Go cache from other branches
+      - name: Restore Go cache
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/cache/restore@v4
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-cross-branch-restore-${{ github.sha }}
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
           restore-keys: |
             go-${{ runner.os }}-
+            go-
+
+      - name: Restore PNPM cache  
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+            pnpm-
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -447,6 +506,14 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/checkout@v5
 
+      - name: Cache Git Submodules
+        uses: actions/cache@v4
+        with:
+          path: |
+            .git/modules
+            **/.git
+          key: submodules-${{ hashFiles('.gitmodules') }}
+
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         run: git submodule update --init --recursive
@@ -458,9 +525,10 @@ jobs:
           path: |
             ~/.cache/bazel
             ~/.cache/bazelisk
-          key: bazel-cross-branch-restore-${{ github.sha }}
+          key: bazel-${{ runner.os }}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '**/*.bzl') }}
           restore-keys: |
             bazel-${{ runner.os }}-
+            bazel-
 
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -471,16 +539,36 @@ jobs:
           external-cache: true
           repository-cache: true
 
-      - name: Restore Go cache from other branches
+      - name: Restore Go cache
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/cache/restore@v4
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-cross-branch-restore-${{ github.sha }}
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
           restore-keys: |
             go-${{ runner.os }}-
+            go-
+
+      - name: Restore PNPM cache  
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+            pnpm-
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
