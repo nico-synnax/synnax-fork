@@ -196,21 +196,34 @@ jobs:
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
+
+      - name: Cache Bazel
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
         with:
-          bazelisk-cache: true
-          disk-cache: true
-          external-cache: true
-          repository-cache: true
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('.bazelversion', '.bazelrc', 'WORKSPACE', 'WORKSPACE.bazel', '**/BUILD', '**/BUILD.bazel') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-          cache: true
-          cache-dependency-path: |
-            go.work.sum
-            **/go.sum
+
+      - name: Cache Go modules
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+          restore-keys: |
+            go-${{ runner.os }}-
 
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -221,8 +234,15 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Cache pnpm dependencies
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Install Node Dependencies
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -276,21 +296,34 @@ jobs:
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
+
+      - name: Cache Bazel
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
         with:
-          bazelisk-cache: true
-          disk-cache: true
-          external-cache: true
-          repository-cache: true
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('.bazelversion', '.bazelrc', 'WORKSPACE', 'WORKSPACE.bazel', '**/BUILD', '**/BUILD.bazel') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-          cache: true
-          cache-dependency-path: |
-            go.work.sum
-            **/go.sum
+
+      - name: Cache Go modules
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+          restore-keys: |
+            go-${{ runner.os }}-
 
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -301,8 +334,15 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Cache pnpm dependencies
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Install Node Dependencies
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -391,21 +431,34 @@ jobs:
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
+
+      - name: Cache Bazel
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
         with:
-          bazelisk-cache: true
-          disk-cache: true
-          external-cache: true
-          repository-cache: true
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('.bazelversion', '.bazelrc', 'WORKSPACE', 'WORKSPACE.bazel', '**/BUILD', '**/BUILD.bazel') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-          cache: true
-          cache-dependency-path: |
-            go.work.sum
-            **/go.sum
+
+      - name: Cache Go modules
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+          restore-keys: |
+            go-${{ runner.os }}-
 
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -416,8 +469,15 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Cache pnpm dependencies
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Install Node Dependencies
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
