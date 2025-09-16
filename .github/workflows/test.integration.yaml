@@ -198,10 +198,14 @@ jobs:
             .git/modules
             **/.git
           key: submodules-${{ hashFiles('.gitmodules') }}
+          restore-keys: |
+            submodules-
 
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        run: git submodule update --init --recursive
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --force
 
       - name: Restore Bazel cache from other branches
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -329,10 +333,14 @@ jobs:
             .git/modules
             **/.git
           key: submodules-${{ hashFiles('.gitmodules') }}
+          restore-keys: |
+            submodules-
 
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        run: git submodule update --init --recursive
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --force
 
       - name: Restore Bazel cache from other branches
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -495,10 +503,14 @@ jobs:
             .git/modules
             **/.git
           key: submodules-${{ hashFiles('.gitmodules') }}
+          restore-keys: |
+            submodules-
 
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        run: git submodule update --init --recursive
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --force
 
       - name: Restore Bazel cache from other branches
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
