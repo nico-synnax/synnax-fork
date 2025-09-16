@@ -210,7 +210,7 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-cross-branch-never-matches
+          key: go-cross-branch-restore-${{ github.sha }}
           restore-keys: |
             go-${{ runner.os }}-
 
@@ -233,7 +233,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.pnpm-store
-          key: pnpm-cross-branch-never-matches
+          key: pnpm-cross-branch-restore-${{ github.sha }}
           restore-keys: |
             pnpm-${{ runner.os }}-
 
@@ -310,7 +310,7 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-cross-branch-never-matches
+          key: go-cross-branch-restore-${{ github.sha }}
           restore-keys: |
             go-${{ runner.os }}-
 
@@ -333,7 +333,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.pnpm-store
-          key: pnpm-cross-branch-never-matches
+          key: pnpm-cross-branch-restore-${{ github.sha }}
           restore-keys: |
             pnpm-${{ runner.os }}-
 
@@ -445,7 +445,7 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-cross-branch-never-matches
+          key: go-cross-branch-restore-${{ github.sha }}
           restore-keys: |
             go-${{ runner.os }}-
 
@@ -468,7 +468,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.pnpm-store
-          key: pnpm-cross-branch-never-matches
+          key: pnpm-cross-branch-restore-${{ github.sha }}
           restore-keys: |
             pnpm-${{ runner.os }}-
 
