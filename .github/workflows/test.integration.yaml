@@ -246,15 +246,6 @@ jobs:
             pnpm-${{ runner.os }}-
             pnpm-
 
-      - name: Save Go cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
-
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
@@ -293,6 +284,15 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         id: version
         run: integration/scripts/build_core_unix.sh
+        
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
 
       - name: Skip Build (Ubuntu Latest)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
@@ -377,15 +377,6 @@ jobs:
             pnpm-${{ runner.os }}-
             pnpm-
 
-      - name: Save Go cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
-
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
@@ -458,6 +449,15 @@ jobs:
           echo Testing binary execution...
           core\synnax-v${{ steps.version.outputs.VERSION }}-windows.exe version || echo ⚠️ Core binary check failed
           bazel-bin\driver\driver.exe version || echo ⚠️ Driver binary check failed
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
 
       - name: Skip Build (Windows Latest)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
@@ -543,15 +543,6 @@ jobs:
             pnpm-${{ runner.os }}-
             pnpm-
 
-      - name: Save Go cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
-
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
@@ -592,6 +583,15 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         id: version
         run: integration/scripts/build_core_unix.sh
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
 
       - name: Skip Build (macOS)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
