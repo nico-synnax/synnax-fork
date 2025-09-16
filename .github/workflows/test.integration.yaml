@@ -157,13 +157,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            script: integration/scripts/confirm_host_unix.sh
-            shell: bash
-          - os: windows-latest
-            script: integration/scripts/ConfirmHostWindows.cmd
-            shell: cmd
     runs-on:
       - self-hosted
       - ${{ matrix.os }}
@@ -172,9 +165,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Confirm Host
-        shell: ${{ matrix.shell }}
-        run: ${{ matrix.script }}
+      - name: Confirm Host (Unix)
+        if: matrix.os == 'ubuntu-latest'
+        run: integration/scripts/confirm_host_unix.sh
+
+      - name: Confirm Host (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: integration/scripts/ConfirmHostWindows.cmd
 
   build:
     name: Build (${{ matrix.os }})
