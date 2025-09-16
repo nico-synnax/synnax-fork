@@ -510,6 +510,15 @@ jobs:
           path: .git/modules
           key: submodules-${{ hashFiles('.gitmodules') }}
 
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+
       - name: Skip Build (Windows Latest)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
         run: echo "Build skipped - using reference artifacts"
