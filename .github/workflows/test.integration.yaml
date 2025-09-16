@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+      - force-a-build
   workflow_dispatch:
     inputs:
       RUN_NAME:
@@ -196,53 +197,53 @@ jobs:
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          external-cache: true
+          repository-cache: true
 
-      - name: Cache Bazel
+      - name: Restore Go cache from other branches
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
-            ~/.cache/bazel
-            ~/.cache/bazelisk
-          key: bazel-${{ runner.os }}-${{ hashFiles('.bazelversion', '.bazelrc', 'WORKSPACE', 'WORKSPACE.bazel', '**/BUILD', '**/BUILD.bazel') }}
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-cross-branch-never-matches
           restore-keys: |
-            bazel-${{ runner.os }}-
+            go-${{ runner.os }}-
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-
-      - name: Cache Go modules
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
-          restore-keys: |
-            go-${{ runner.os }}-
+          cache: true
+          cache-dependency-path: |
+            go.work.sum
+            **/go.sum
 
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
+
+      - name: Restore pnpm cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-cross-branch-never-matches
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-
-      - name: Cache pnpm dependencies
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install Node Dependencies
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -296,53 +297,53 @@ jobs:
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          external-cache: true
+          repository-cache: true
 
-      - name: Cache Bazel
+      - name: Restore Go cache from other branches
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
-            ~/.cache/bazel
-            ~/.cache/bazelisk
-          key: bazel-${{ runner.os }}-${{ hashFiles('.bazelversion', '.bazelrc', 'WORKSPACE', 'WORKSPACE.bazel', '**/BUILD', '**/BUILD.bazel') }}
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-cross-branch-never-matches
           restore-keys: |
-            bazel-${{ runner.os }}-
+            go-${{ runner.os }}-
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-
-      - name: Cache Go modules
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
-          restore-keys: |
-            go-${{ runner.os }}-
+          cache: true
+          cache-dependency-path: |
+            go.work.sum
+            **/go.sum
 
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
+
+      - name: Restore pnpm cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-cross-branch-never-matches
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-
-      - name: Cache pnpm dependencies
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install Node Dependencies
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -431,53 +432,53 @@ jobs:
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
+        with:
+          bazelisk-cache: true
+          disk-cache: true
+          external-cache: true
+          repository-cache: true
 
-      - name: Cache Bazel
+      - name: Restore Go cache from other branches
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
-            ~/.cache/bazel
-            ~/.cache/bazelisk
-          key: bazel-${{ runner.os }}-${{ hashFiles('.bazelversion', '.bazelrc', 'WORKSPACE', 'WORKSPACE.bazel', '**/BUILD', '**/BUILD.bazel') }}
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-cross-branch-never-matches
           restore-keys: |
-            bazel-${{ runner.os }}-
+            go-${{ runner.os }}-
 
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-
-      - name: Cache Go modules
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
-          restore-keys: |
-            go-${{ runner.os }}-
+          cache: true
+          cache-dependency-path: |
+            go.work.sum
+            **/go.sum
 
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
+
+      - name: Restore pnpm cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-cross-branch-never-matches
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
-
-      - name: Cache pnpm dependencies
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install Node Dependencies
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
