@@ -194,6 +194,17 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         run: git submodule update --init --recursive
 
+      - name: Restore Bazel cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
+
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: bazel-contrib/setup-bazel@0.15.0
@@ -293,6 +304,17 @@ jobs:
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         run: git submodule update --init --recursive
+
+      - name: Restore Bazel cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -428,6 +450,17 @@ jobs:
       - name: Update Submodules
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         run: git submodule update --init --recursive
+
+      - name: Restore Bazel cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Setup Bazel
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
