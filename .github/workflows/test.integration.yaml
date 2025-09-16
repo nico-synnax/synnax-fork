@@ -191,6 +191,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Cache Git Submodules
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -259,7 +260,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-          cache: true
           cache-dependency-path: |
             go.work.sum
             **/go.sum
@@ -267,15 +267,6 @@ jobs:
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache from other branches
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-cross-branch-restore-${{ github.sha }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -400,7 +391,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-          cache: true
           cache-dependency-path: |
             go.work.sum
             **/go.sum
@@ -408,15 +398,6 @@ jobs:
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache from other branches
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-cross-branch-restore-${{ github.sha }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -507,6 +488,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Cache Git Submodules
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/cache@v4
         with:
           path: |
@@ -575,7 +557,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.work
-          cache: true
           cache-dependency-path: |
             go.work.sum
             **/go.sum
@@ -583,15 +564,6 @@ jobs:
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
-
-      - name: Restore pnpm cache from other branches
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-cross-branch-restore-${{ github.sha }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
