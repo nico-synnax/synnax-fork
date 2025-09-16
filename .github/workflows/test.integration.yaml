@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-      - force-a-build
   workflow_dispatch:
     inputs:
       RUN_NAME:
@@ -262,15 +261,6 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
 
-      - name: Restore pnpm cache from other branches
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-cross-branch-restore-${{ github.sha }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
-
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-node@v5
@@ -298,13 +288,36 @@ jobs:
         run: integration/scripts/build_core_unix.sh
         
       - name: Save Go cache
-        if: always()
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
         uses: actions/cache/save@v4
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
           key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+
+      - name: Save Bazel cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '**/*.bzl') }}
+
+      - name: Save PNPM cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Save Submodule cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: .git/modules
+          key: submodules-${{ hashFiles('.gitmodules') }}
 
       - name: Skip Build (Ubuntu Latest)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
@@ -405,15 +418,6 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
 
-      - name: Restore pnpm cache from other branches
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-cross-branch-restore-${{ github.sha }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
-
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-node@v5
@@ -471,17 +475,40 @@ jobs:
         shell: cmd
         run: |
           echo Testing binary execution...
-          core\synnax-v${{ steps.version.outputs.VERSION }}-windows.exe version || echo ⚠️ Core binary check failed
-          bazel-bin\driver\driver.exe version || echo ⚠️ Driver binary check failed
+          core\synnax-v${{ steps.version.outputs.VERSION }}-windows.exe version || echo Core binary check failed
+          bazel-bin\driver\driver.exe version || echo Driver binary check failed
 
       - name: Save Go cache
-        if: always()
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
         uses: actions/cache/save@v4
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
           key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+
+      - name: Save Bazel cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '**/*.bzl') }}
+
+      - name: Save PNPM cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Save Submodule cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: .git/modules
+          key: submodules-${{ hashFiles('.gitmodules') }}
 
       - name: Skip Build (Windows Latest)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
@@ -583,15 +610,6 @@ jobs:
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
 
-      - name: Restore pnpm cache from other branches
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
-        uses: actions/cache/restore@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-cross-branch-restore-${{ github.sha }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
-
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-node@v5
@@ -621,13 +639,36 @@ jobs:
         run: integration/scripts/build_core_unix.sh
 
       - name: Save Go cache
-        if: always()
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
         uses: actions/cache/save@v4
         with:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
           key: go-${{ runner.os }}-${{ hashFiles('go.work.sum', '**/go.sum') }}
+
+      - name: Save Bazel cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/bazel
+            ~/.cache/bazelisk
+          key: bazel-${{ runner.os }}-${{ hashFiles('WORKSPACE', 'BUILD.bazel', '**/*.bzl') }}
+
+      - name: Save PNPM cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Save Submodule cache
+        if: always() && needs.setup.outputs.SKIP_BUILD == 'false' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc')
+        uses: actions/cache/save@v4
+        with:
+          path: .git/modules
+          key: submodules-${{ hashFiles('.gitmodules') }}
 
       - name: Skip Build (macOS)
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
