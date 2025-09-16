@@ -1,17 +1,12 @@
 name: Test - Integration
 
-run-name:
-  ${{ github.event.inputs.RUN_NAME || format('Test - Integration {0}', github.ref_name)
-  }}
+run-name: >
+  ${{ github.event.inputs.RUN_NAME || format('Test - Integration {0}', github.ref_name) }}
 
 on:
   pull_request:
     branches:
       - main
-  push:
-    branches:
-      - main
-      - rc
   workflow_dispatch:
     inputs:
       RUN_NAME:
@@ -25,20 +20,19 @@ on:
         default: false
         type: boolean
       REF_RUN_ID:
-        description: "Reference run ID for artifacts (when SKIP_BUILD is true)"
+        description: "Reference run ID for artifacts (when SKIP_BUILD is true, blank for most recent)"
         required: false
-        default: "0000000000"
+        default: ""
         type: string
       SEQUENCE:
-        description:
-          "Test case sequence to run (optional - will auto-discover if empty)"
+        description: "Test case sequence to run (optional - will auto-discover if empty)"
         required: false
         default: ""
         type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   CACHE_SCOPE: deploy-synnax
@@ -81,16 +75,21 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      SKIP_BUILD: ${{ steps.set-outputs.outputs.SKIP_BUILD }}
-      REF_RUN_ID: ${{ steps.set-outputs.outputs.REF_RUN_ID }}
+      SKIP_BUILD: ${{ steps.update-outputs.outputs.SKIP_BUILD || steps.set-outputs.outputs.SKIP_BUILD }}
+      REF_RUN_ID: ${{ steps.update-outputs.outputs.REF_RUN_ID || steps.set-outputs.outputs.REF_RUN_ID }}
       SEQUENCE_ARG: ${{ steps.set-outputs.outputs.SEQUENCE_ARG }}
+      USE_CACHE: ${{ steps.update-outputs.outputs.USE_CACHE || steps.set-outputs.outputs.USE_CACHE }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
       - name: Set outputs
         id: set-outputs
         env:
           SKIP_BUILD: ${{ github.event.inputs.SKIP_BUILD || 'false' }}
-          REF_RUN_ID: ${{ github.event.inputs.REF_RUN_ID || '0000000000' }}
+          REF_RUN_ID: ${{ github.event.inputs.REF_RUN_ID || '' }}
           SEQUENCE: ${{ github.event.inputs.SEQUENCE || '' }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "SKIP_BUILD=${SKIP_BUILD}" >> $GITHUB_OUTPUT
 
@@ -102,8 +101,41 @@ jobs:
 
           if [ "${SKIP_BUILD}" = "false" ]; then
             echo "REF_RUN_ID=${{ github.run_id }}" >> $GITHUB_OUTPUT
+            echo "USE_CACHE=true" >> $GITHUB_OUTPUT
           else
-            echo "REF_RUN_ID=${REF_RUN_ID}" >> $GITHUB_OUTPUT
+            if [ -z "${REF_RUN_ID}" ]; then
+              RECENT_RUN_ID=$(gh run list --workflow="test.integration.yaml" --status="success" --limit=50 --json="databaseId,conclusion" --jq='.[].databaseId' | head -1)
+              if [ -n "${RECENT_RUN_ID}" ]; then
+                echo "REF_RUN_ID=${RECENT_RUN_ID}" >> $GITHUB_OUTPUT
+              else
+                echo "REF_RUN_ID=0000000000" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "REF_RUN_ID=${REF_RUN_ID}" >> $GITHUB_OUTPUT
+            fi
+            echo "USE_CACHE=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for Cached Artifacts
+        if: ${{ steps.set-outputs.outputs.SKIP_BUILD == 'false' && steps.set-outputs.outputs.USE_CACHE == 'true' }}
+        id: check-cache
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: integration/scripts/check_artifact_cache.sh all
+
+      - name: Update Outputs Based on Cache
+        id: update-outputs
+        run: |
+          if [ "${{ steps.check-cache.outputs.CACHE_HIT }}" = "true" ]; then
+            echo "SKIP_BUILD=true" >> $GITHUB_OUTPUT
+            echo "REF_RUN_ID=${{ steps.check-cache.outputs.CACHED_RUN_ID }}" >> $GITHUB_OUTPUT
+            echo "USE_CACHE=false" >> $GITHUB_OUTPUT
+            echo "Using cached artifacts from run ${{ steps.check-cache.outputs.CACHED_RUN_ID }}"
+          else
+            echo "SKIP_BUILD=${{ steps.set-outputs.outputs.SKIP_BUILD }}" >> $GITHUB_OUTPUT
+            echo "REF_RUN_ID=${{ steps.set-outputs.outputs.REF_RUN_ID }}" >> $GITHUB_OUTPUT
+            echo "USE_CACHE=${{ steps.set-outputs.outputs.USE_CACHE }}" >> $GITHUB_OUTPUT
+            echo "No cached artifacts found, will build from scratch"
           fi
 
   confirm-host-ubuntu-latest:
@@ -166,6 +198,8 @@ jobs:
         uses: bazel-contrib/setup-bazel@0.15.0
         with:
           bazelisk-cache: true
+          disk-cache: true
+          external-cache: true
           repository-cache: true
 
       - name: Set up Go
@@ -244,6 +278,8 @@ jobs:
         uses: bazel-contrib/setup-bazel@0.15.0
         with:
           bazelisk-cache: true
+          disk-cache: true
+          external-cache: true
           repository-cache: true
 
       - name: Set up Go
@@ -357,6 +393,8 @@ jobs:
         uses: bazel-contrib/setup-bazel@0.15.0
         with:
           bazelisk-cache: true
+          disk-cache: true
+          external-cache: true
           repository-cache: true
 
       - name: Set up Go
