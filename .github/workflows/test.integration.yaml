@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+      - force-a-build
   workflow_dispatch:
     inputs:
       RUN_NAME:
@@ -202,6 +203,17 @@ jobs:
           external-cache: true
           repository-cache: true
 
+      - name: Restore Go cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-
+
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
@@ -215,6 +227,15 @@ jobs:
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
+
+      - name: Restore pnpm cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -282,6 +303,17 @@ jobs:
           external-cache: true
           repository-cache: true
 
+      - name: Restore Go cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-
+
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
@@ -295,6 +327,15 @@ jobs:
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
+
+      - name: Restore pnpm cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
@@ -397,6 +438,17 @@ jobs:
           external-cache: true
           repository-cache: true
 
+      - name: Restore Go cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-
+
       - name: Set up Go
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/setup-go@v5
@@ -410,6 +462,15 @@ jobs:
       - name: Set up pnpm
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: pnpm/action-setup@v4
+
+      - name: Restore pnpm cache from other branches
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-cross-branch-restore-${{ github.sha }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
 
       - name: Set up Node.js
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
