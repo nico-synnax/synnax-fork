@@ -127,3 +127,5 @@ else
     echo "Building artifacts from scratch"
     echo "CACHE_HIT=false" >> ${GITHUB_OUTPUT:-/dev/null}
 fi
+
+echo DELETE THIS LINE! 
