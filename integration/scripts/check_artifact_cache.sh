@@ -82,7 +82,7 @@ if [ -n "${CACHED_RUN}" ] && [ -n "${RECENT_SHA}" ]; then
 
     if [ "${NEEDS_REBUILD}" != "true" ]; then
         if [ -z "${CHANGED_FILES}" ]; then
-            echo "No changes detected since last build"
+            echo "No changes detected since last successful build"
             NEEDS_REBUILD=false
         else
             NEEDS_REBUILD=false
