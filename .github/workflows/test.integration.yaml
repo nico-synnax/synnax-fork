@@ -196,6 +196,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: [setup, confirm-host]
     steps:
+      - name: Skip Build
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
+        run: echo "Build skipped - using reference artifacts"
+
       - name: Checkout Repository
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         uses: actions/checkout@v5
@@ -230,6 +234,7 @@ jobs:
           --announce_rc //driver
 
       - name: Determine OS
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         id: os
         shell: bash
         run: |
@@ -242,6 +247,7 @@ jobs:
           fi
 
       - name: Determine Executable Name
+        if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
         id: executable
         shell: bash
         run: |
@@ -296,10 +302,6 @@ jobs:
         working-directory: core
         run: |
           go build -tags console,driver -o synnax-v${{ needs.setup.outputs.VERSION }}-${{ matrix.binary-suffix }}
-
-      - name: Skip Build
-        if: ${{ needs.setup.outputs.SKIP_BUILD == 'true' }}
-        run: echo "Build skipped - using reference artifacts"
 
       - name: Upload Core Binary as Artifact
         if: ${{ needs.setup.outputs.SKIP_BUILD == 'false' }}
