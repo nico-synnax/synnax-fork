@@ -60,7 +60,7 @@ done
 if [ -n "${CACHED_RUN}" ] && [ -n "${RECENT_SHA}" ]; then
     SAFE_PATHS=(
         "docs/"
-        "integration/test/"
+        "integration/"
         "*.md"
         "LICENSE"
         ".editorconfig"
