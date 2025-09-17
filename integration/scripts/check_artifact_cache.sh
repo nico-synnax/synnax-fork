@@ -60,7 +60,7 @@ done
 if [ -n "${CACHED_RUN}" ] && [ -n "${RECENT_SHA}" ]; then
     SAFE_PATHS=(
         "docs/"
-        "integration/"
+        "integration/test/"
         "*.md"
         "LICENSE"
         ".editorconfig"
@@ -127,5 +127,3 @@ else
     echo "Building artifacts from scratch"
     echo "CACHE_HIT=false" >> ${GITHUB_OUTPUT:-/dev/null}
 fi
-
-echo DELETE THIS LINE! 
