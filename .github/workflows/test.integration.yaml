@@ -150,7 +150,7 @@ jobs:
             echo "SKIP_BUILD=${{ steps.set-outputs.outputs.SKIP_BUILD }}" >> $GITHUB_OUTPUT
             echo "REF_RUN_ID=${{ steps.set-outputs.outputs.REF_RUN_ID }}" >> $GITHUB_OUTPUT
             echo "USE_CACHE=${{ steps.set-outputs.outputs.USE_CACHE }}" >> $GITHUB_OUTPUT
-            echo "No cached artifacts found, will build from scratch"
+            echo "Using artifacts from run ${{ REF_RUN_ID }}"
           fi
 
   confirm-host:
