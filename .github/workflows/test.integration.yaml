@@ -1,7 +1,8 @@
 name: Test - Integration
 
 run-name: >
-  ${{ github.event.inputs.RUN_NAME || format('Test - Integration {0}', github.ref_name) }}
+  ${{ github.event.inputs.RUN_NAME || format('Test - Integration {0}', github.ref_name)
+  }}
 
 on:
   pull_request:
@@ -23,12 +24,15 @@ on:
         default: false
         type: boolean
       REF_RUN_ID:
-        description: "Reference run ID for artifacts (when SKIP_BUILD is true, blank for most recent)"
+        description:
+          "Reference run ID for artifacts (when SKIP_BUILD is true, blank for most
+          recent)"
         required: false
         default: ""
         type: string
       SEQUENCE:
-        description: "Test case sequence to run (optional - will auto-discover if empty)"
+        description:
+          "Test case sequence to run (optional - will auto-discover if empty)"
         required: false
         default: ""
         type: string
@@ -79,10 +83,16 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       VERSION: ${{ steps.version.outputs.VERSION }}
-      SKIP_BUILD: ${{ steps.update-outputs.outputs.SKIP_BUILD || steps.set-outputs.outputs.SKIP_BUILD }}
-      REF_RUN_ID: ${{ steps.update-outputs.outputs.REF_RUN_ID || steps.set-outputs.outputs.REF_RUN_ID }}
+      SKIP_BUILD:
+        ${{ steps.update-outputs.outputs.SKIP_BUILD ||
+        steps.set-outputs.outputs.SKIP_BUILD }}
+      REF_RUN_ID:
+        ${{ steps.update-outputs.outputs.REF_RUN_ID ||
+        steps.set-outputs.outputs.REF_RUN_ID }}
       SEQUENCE_ARG: ${{ steps.set-outputs.outputs.SEQUENCE_ARG }}
-      USE_CACHE: ${{ steps.update-outputs.outputs.USE_CACHE || steps.set-outputs.outputs.USE_CACHE }}
+      USE_CACHE:
+        ${{ steps.update-outputs.outputs.USE_CACHE ||
+        steps.set-outputs.outputs.USE_CACHE }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -131,7 +141,9 @@ jobs:
           fi
 
       - name: Check for Cached Artifacts
-        if: ${{ steps.set-outputs.outputs.SKIP_BUILD == 'false' && steps.set-outputs.outputs.USE_CACHE == 'true' }}
+        if:
+          ${{ steps.set-outputs.outputs.SKIP_BUILD == 'false' &&
+          steps.set-outputs.outputs.USE_CACHE == 'true' }}
         id: check-cache
         env:
           GH_TOKEN: ${{ github.token }}
@@ -307,7 +319,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
-          path: core/synnax-v${{ needs.setup.outputs.VERSION }}-${{ matrix.binary-suffix }}
+          path:
+            core/synnax-v${{ needs.setup.outputs.VERSION }}-${{ matrix.binary-suffix }}
           retention-days: 7
           if-no-files-found: error
 
