@@ -10,6 +10,7 @@ on:
   push:
     branches:
       - main
+      - force-a-build
   workflow_dispatch:
     inputs:
       RUN_NAME:
